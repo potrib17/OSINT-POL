@@ -1,1 +1,2794 @@
-Test de archivo index
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Framework OSINT-POL Ecuador · Contrainteligencia Política y Lucha contra la Desinformación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #07090f;
+    --bg-base: #0a0e17;
+    --bg-surface: #111725;
+    --bg-elevated: #161e30;
+    --border: #1f2a3f;
+    --border-bright: #2d3b56;
+    --text-primary: #e8ecf3;
+    --text-secondary: #a3afc4;
+    --text-muted: #6b7794;
+    --accent: #00d4ff;
+    --accent-dim: #0891b2;
+    --accent-glow: rgba(0, 212, 255, 0.15);
+    --warning: #f59e0b;
+    --critical: #ef4444;
+    --verified: #10b981;
+    --classified: #c084fc;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --sans: 'Manrope', system-ui, sans-serif;
+    --serif: 'Newsreader', Georgia, serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--bg-base);
+    background-image:
+      radial-gradient(at 15% 5%, rgba(0, 212, 255, 0.06) 0px, transparent 50%),
+      radial-gradient(at 85% 95%, rgba(192, 132, 252, 0.05) 0px, transparent 50%),
+      linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-base) 100%);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Noise overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: overlay;
+  }
+
+  .wrap { position: relative; z-index: 2; }
+
+  /* Top status bar */
+  .statusbar {
+    position: sticky;
+    top: 0;
+    background: rgba(7, 9, 15, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .statusbar-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 10px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .statusbar-left { display: flex; gap: 18px; align-items: center; color: var(--text-muted); }
+  .statusbar-right { display: flex; gap: 14px; align-items: center; color: var(--text-muted); }
+  .stat-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--verified);
+    box-shadow: 0 0 8px var(--verified);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .classification {
+    border: 1px solid var(--warning);
+    color: var(--warning);
+    padding: 2px 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* HERO */
+  .hero {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 88px 32px 48px;
+    position: relative;
+  }
+  .hero-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .hero-meta::before {
+    content: '';
+    width: 32px; height: 1px;
+    background: var(--accent);
+    display: inline-block;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(2.4rem, 6vw, 4.8rem);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    margin-bottom: 24px;
+    max-width: 1100px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-family: var(--serif);
+  }
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 780px;
+    line-height: 1.65;
+    margin-bottom: 36px;
+  }
+  .hero-marks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0;
+    margin-top: 56px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .mark {
+    padding: 24px 28px;
+    border-right: 1px solid var(--border);
+    font-family: var(--mono);
+  }
+  .mark:last-child { border-right: none; }
+  .mark-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .mark-value {
+    font-size: 1.6rem;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .mark-value small {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.1em;
+  }
+
+  /* Methodology bar */
+  .method {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 64px 32px;
+  }
+  .method h2 {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .method-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .method-cell {
+    background: var(--bg-surface);
+    padding: 28px 26px;
+    transition: background 0.3s;
+  }
+  .method-cell:hover { background: var(--bg-elevated); }
+  .method-num {
+    font-family: var(--mono);
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    margin-bottom: 14px;
+  }
+  .method-cell h3 {
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+  }
+  .method-cell p {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* Search */
+  .search-wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px 24px;
+    position: sticky;
+    top: 41px;
+    z-index: 50;
+    background: linear-gradient(180deg, var(--bg-base) 70%, transparent 100%);
+    padding-top: 32px;
+    padding-bottom: 24px;
+  }
+  .search {
+    position: relative;
+    border: 1px solid var(--border-bright);
+    background: var(--bg-surface);
+    display: flex;
+    align-items: center;
+  }
+  .search::before {
+    content: '⌕';
+    font-size: 1.4rem;
+    color: var(--accent);
+    padding: 0 18px;
+    font-family: var(--mono);
+  }
+  .search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    padding: 16px 0;
+    font-size: 0.95rem;
+    font-family: var(--sans);
+    outline: none;
+  }
+  .search input::placeholder { color: var(--text-muted); }
+  .search-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 0 18px;
+    letter-spacing: 0.15em;
+  }
+  #count-display { color: var(--accent); }
+
+  /* Filter chips */
+  .filters {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px 32px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 8px 14px;
+    border: 1px solid var(--border-bright);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .chip.active {
+    background: var(--accent);
+    color: var(--bg-deep);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Sections */
+  .section {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 56px 32px;
+    border-top: 1px solid var(--border);
+  }
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 32px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+  .section-title {
+    flex: 1;
+    min-width: 280px;
+  }
+  .section-id {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-id-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+    max-width: 80px;
+  }
+  .section h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  .section-desc {
+    color: var(--text-secondary);
+    max-width: 720px;
+    line-height: 1.65;
+  }
+  .section-flag {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 4px 10px;
+    border: 1px solid var(--border-bright);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    align-self: flex-start;
+  }
+  .section-flag.high { border-color: var(--critical); color: var(--critical); }
+  .section-flag.med { border-color: var(--warning); color: var(--warning); }
+  .section-flag.std { border-color: var(--verified); color: var(--verified); }
+
+  /* Cards */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .card {
+    background: var(--bg-surface);
+    padding: 32px 30px;
+    position: relative;
+    transition: background 0.3s, transform 0.3s;
+    display: flex;
+    flex-direction: column;
+  }
+  .card:hover {
+    background: var(--bg-elevated);
+  }
+  .card.hidden { display: none; }
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .card-acronym {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid var(--accent-dim);
+    background: var(--accent-glow);
+    white-space: nowrap;
+  }
+  .card-id {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+  }
+  .card h3 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1.3rem;
+    line-height: 1.25;
+    margin-bottom: 14px;
+    color: var(--text-primary);
+  }
+  .card-desc {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin-bottom: 22px;
+    flex: 1;
+  }
+  .card-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    padding: 3px 8px;
+    border: 1px solid var(--border-bright);
+    color: var(--text-muted);
+    margin: 0 6px 6px 0;
+  }
+  .card-tag.priority { color: var(--warning); border-color: var(--warning); }
+  .card-osint-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--accent);
+    margin-bottom: 10px;
+    margin-top: 6px;
+  }
+  .card-osint {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 22px;
+    padding-left: 14px;
+    border-left: 2px solid var(--accent-dim);
+  }
+  .card-links {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+  .card-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 12px;
+    background: var(--bg-base);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    transition: all 0.2s;
+    word-break: break-all;
+  }
+  .card-link:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+    transform: translateX(2px);
+  }
+  .card-link-label {
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    flex-shrink: 0;
+    width: 52px;
+  }
+  .card-link:hover .card-link-label { color: var(--accent); }
+  .card-link-url {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-link-arrow {
+    font-family: var(--mono);
+    color: var(--text-muted);
+    transition: transform 0.2s;
+  }
+  .card-link:hover .card-link-arrow {
+    color: var(--accent);
+    transform: translateX(2px);
+  }
+
+  /* Footer */
+  .footer {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 80px 32px 48px;
+    border-top: 1px solid var(--border);
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 64px;
+    margin-bottom: 48px;
+  }
+  .footer h3 {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .footer p, .footer li {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+  .footer ul { list-style: none; }
+  .footer li { margin-bottom: 8px; font-family: var(--mono); font-size: 0.82rem; }
+  .footer-bottom {
+    border-top: 1px solid var(--border);
+    padding-top: 28px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .signature {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Subgroup headers — sub-section dividers within a section grid */
+  .subgroup-header {
+    grid-column: 1 / -1;
+    background: var(--bg-base);
+    padding: 28px 30px 18px;
+    border-left: 3px solid var(--accent);
+    display: flex;
+    align-items: baseline;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+  .subgroup-id {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .subgroup-title {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .subgroup-desc {
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    flex: 1;
+    min-width: 260px;
+    line-height: 1.5;
+  }
+  .card-purpose {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    padding: 4px 10px;
+    background: var(--accent-glow);
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+    margin-bottom: 14px;
+  }
+
+  /* Empty state */
+  .empty-state {
+    grid-column: 1 / -1;
+    background: var(--bg-surface);
+    padding: 80px 32px;
+    text-align: center;
+    border: 1px dashed var(--border-bright);
+    display: none;
+  }
+  .empty-state.active { display: block; }
+  .empty-state .glyph {
+    font-family: var(--mono);
+    color: var(--warning);
+    font-size: 2.4rem;
+    margin-bottom: 16px;
+  }
+  .empty-state p {
+    color: var(--text-secondary);
+    font-family: var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 11px;
+  }
+
+  @media (max-width: 768px) {
+    .hero, .method, .section, .filters, .search-wrap, .footer { padding-left: 20px; padding-right: 20px; }
+    .statusbar-inner { padding: 10px 20px; gap: 10px; }
+    .footer-grid { grid-template-columns: 1fr; gap: 40px; }
+    .cards { grid-template-columns: 1fr; }
+    .hero { padding-top: 56px; }
+    .mark { padding: 18px 20px; border-right: none; border-bottom: 1px solid var(--border); }
+    .mark:last-child { border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Status bar -->
+  <div class="statusbar">
+    <div class="statusbar-inner">
+      <div class="statusbar-left">
+        <span><span class="stat-dot"></span> <span style="margin-left:6px">OPERATIVO</span></span>
+        <span>FRAMEWORK / OSINT-POL ECUADOR v1.2</span>
+        <span class="hide-mobile">REGIÓN: EC-ZONA-7</span>
+      </div>
+      <div class="statusbar-right">
+        <span class="classification">OSINT // PÚBLICO</span>
+        <span>ÚLT. ACT. <span id="now-date"></span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-meta">DOSSIER OPERATIVO · INTELIGENCIA DE FUENTES ABIERTAS</div>
+    <h1>Framework OSINT-POL Ecuador para el rastreo institucional y la <em>desactivación</em> de la desinformación política..</h1>
+    <p class="hero-sub">
+      Cartografía operativa de las fuentes oficiales del Estado ecuatoriano que generan, custodian o publican información política, judicial, electoral, presupuestaria y de control. Diseñado para analistas, periodistas, investigadores, oficiales de cumplimiento y ciudadanos que necesiten contrastar, verificar y reconstruir hechos cuando el ruido informativo intenta imponer la narrativa.
+    </p>
+
+    <div class="hero-marks">
+      <div class="mark">
+        <div class="mark-label">Funciones del Estado</div>
+        <div class="mark-value">05 <small>// ramas constitucionales</small></div>
+      </div>
+      <div class="mark">
+        <div class="mark-label">Instituciones mapeadas</div>
+        <div class="mark-value" id="total-count">—</div>
+      </div>
+      <div class="mark">
+        <div class="mark-label">Categorías OSINT</div>
+        <div class="mark-value">11</div>
+      </div>
+      <div class="mark">
+        <div class="mark-label">Marco legal</div>
+        <div class="mark-value">LOTAIP <small>// 2004 - 2024</small></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Methodology -->
+  <section class="method">
+    <h2>// Doctrina operativa &nbsp;·&nbsp; Ciclo OSINT aplicado al ecosistema ecuatoriano</h2>
+    <div class="method-grid">
+      <div class="method-cell">
+        <div class="method-num">01 / DIRECCIÓN</div>
+        <h3>Formular la pregunta antes de buscar</h3>
+        <p>La desinformación se combate con preguntas precisas. Definir el actor, periodo, jurisdicción y tipo de dato (electoral, contractual, judicial, patrimonial) determina qué fuente del Estado consultar primero.</p>
+      </div>
+      <div class="method-cell">
+        <div class="method-num">02 / RECOLECCIÓN</div>
+        <h3>Fuentes primarias antes que titulares</h3>
+        <p>Toda afirmación política debe poder rastrearse a un acto administrativo, sentencia, resolución, contrato o publicación oficial. El Registro Oficial, los portales LOTAIP y los repositorios de datos abiertos son siempre el primer anclaje probatorio.</p>
+      </div>
+      <div class="method-cell">
+        <div class="method-num">03 / PROCESAMIENTO</div>
+        <h3>Triangulación entre funciones</h3>
+        <p>Cruzar datos entre la Función Ejecutiva, Legislativa, Judicial, Electoral y de Transparencia neutraliza versiones unilaterales. Una afirmación que no se sostiene en al menos dos fuentes independientes del Estado debe marcarse como no verificada.</p>
+      </div>
+      <div class="method-cell">
+        <div class="method-num">04 / ANÁLISIS</div>
+        <h3>Cadena de custodia documental</h3>
+        <p>Cada hallazgo se preserva con URL, fecha y captura. Esta práctica protege la investigación frente al borrado selectivo, los rediseños de portales y las modificaciones silenciosas de documentos públicos, fenómenos recurrentes en el Ecuador.</p>
+      </div>
+      <div class="method-cell">
+        <div class="method-num">05 / DIFUSIÓN</div>
+        <h3>Contranarrativa con evidencia abierta</h3>
+        <p>La contrainformación útil no es la que grita más fuerte: es la que pone el documento original al alcance del lector en un clic. Cada pieza generada con este framework debe enlazar de regreso a la fuente oficial pública.</p>
+      </div>
+      <div class="method-cell">
+        <div class="method-num">06 / RETROALIMENTACIÓN</div>
+        <h3>Solicitudes LOTAIP cuando la fuente calla</h3>
+        <p>Si la información no está publicada y es de interés público, opera el derecho de acceso a la información (Ley Orgánica de Transparencia y Acceso a la Información Pública). La Defensoría del Pueblo es el órgano rector y receptor de denuncias por incumplimiento.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <div class="search">
+      <input type="text" id="search-input" placeholder="Buscar institución, sigla, función del Estado, tipo de dato…" autocomplete="off">
+      <span class="search-meta">RESULTADOS · <span id="count-display">—</span></span>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters" id="filter-bar">
+    <span class="chip active" data-filter="all">TODAS LAS FUENTES</span>
+    <span class="chip" data-filter="ejecutiva">F. EJECUTIVA</span>
+    <span class="chip" data-filter="legislativa">F. LEGISLATIVA</span>
+    <span class="chip" data-filter="judicial">F. JUDICIAL</span>
+    <span class="chip" data-filter="electoral">F. ELECTORAL</span>
+    <span class="chip" data-filter="transparencia">F. TRANSPARENCIA Y CONTROL</span>
+    <span class="chip" data-filter="constitucional">JUSTICIA CONSTITUCIONAL</span>
+    <span class="chip" data-filter="datos">ESTADÍSTICA &amp; ECONÓMICA</span>
+    <span class="chip" data-filter="prensa">VERIFICACIÓN &amp; PERIODISMO</span>
+    <span class="chip" data-filter="extra">HERRAMIENTAS COMPLEMENTARIAS</span>
+    <span class="chip" data-filter="azuay">GADS · AZUAY</span>
+    <span class="chip" data-filter="internacional">OSINT INTERNACIONAL</span>
+  </div>
+
+  <!-- SECTION 01: FUNCIÓN EJECUTIVA -->
+  <section class="section" id="sec-ejecutiva" data-section="ejecutiva">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-id"><span>SEC · 01</span><span class="section-id-line"></span><span>EJECUTIVO</span></div>
+        <h2>Función Ejecutiva</h2>
+        <p class="section-desc">Núcleo de gobierno donde se generan decretos, políticas públicas, gabinete ministerial y publicaciones oficiales. Es la rama con mayor producción documental diaria y el principal terreno de batalla de la narrativa política.</p>
+      </div>
+      <span class="section-flag high">PRIORIDAD ALTA</span>
+    </div>
+    <div class="cards" data-grid>
+
+      <div class="card" data-cat="ejecutiva" data-keywords="presidencia decretos ejecutivos gabinete">
+        <div class="card-head"><span class="card-acronym">PR</span><span class="card-id">EC-01-001</span></div>
+        <h3>Presidencia de la República del Ecuador</h3>
+        <p class="card-desc">Portal oficial del Jefe de Estado y del Ejecutivo central. Publica decretos ejecutivos, agenda presidencial, intervenciones, designaciones ministeriales y comunicados oficiales. Es la fuente primaria para verificar cualquier declaración atribuida al Presidente o a Carondelet.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Contrastar declaraciones, validar decretos numerados, rastrear designaciones de embajadores y delegados, identificar enmiendas constitucionales propuestas desde el Ejecutivo.</div>
+        <div>
+          <span class="card-tag priority">decretos</span>
+          <span class="card-tag">gabinete</span>
+          <span class="card-tag">comunicados</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.presidencia.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">presidencia.gob.ec</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://www.gob.ec/pr" target="_blank" rel="noopener"><span class="card-link-label">Trámites</span><span class="card-link-url">gob.ec/pr</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="ejecutiva" data-keywords="registro oficial publicaciones normativa">
+        <div class="card-head"><span class="card-acronym">RO</span><span class="card-id">EC-01-002</span></div>
+        <h3>Registro Oficial del Ecuador</h3>
+        <p class="card-desc">Repositorio jurídico-oficial donde toda norma del Estado adquiere vigencia. Publica leyes, decretos, acuerdos ministeriales, resoluciones de superintendencias, sentencias de la Corte Constitucional y reglamentos. Sin publicación en el Registro Oficial, la norma no es exigible.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Verificación legal definitiva. Permite confirmar fechas exactas de publicación, números de decreto, versiones reformadas y cumplimientos de procedimiento normativo. Indispensable para desmentir versiones sobre vigencia o derogación de leyes.</div>
+        <div>
+          <span class="card-tag priority">leyes</span>
+          <span class="card-tag">decretos</span>
+          <span class="card-tag">reglamentos</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.registroficial.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">registroficial.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="ejecutiva" data-keywords="gobec tramites servicios institucionales">
+        <div class="card-head"><span class="card-acronym">GOB.EC</span><span class="card-id">EC-01-003</span></div>
+        <h3>Portal GobEc · Guía Oficial de Trámites y Servicios</h3>
+        <p class="card-desc">Plataforma única del gobierno electrónico ecuatoriano. Concentra los enlaces oficiales a todas las instituciones del Estado, sus trámites, servicios digitales, normativa institucional y datos de contacto verificados. Es el directorio canónico del Ejecutivo.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Punto de partida para validar la URL legítima de cualquier institución y descartar sitios apócrifos. También permite identificar competencias formales de cada entidad pública.</div>
+        <div>
+          <span class="card-tag">directorio</span>
+          <span class="card-tag">institucional</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="ejecutiva" data-keywords="procuraduria general estado defensa juridica">
+        <div class="card-head"><span class="card-acronym">PGE</span><span class="card-id">EC-01-004</span></div>
+        <h3>Procuraduría General del Estado</h3>
+        <p class="card-desc">Órgano de patrocinio jurídico del Estado ecuatoriano. Representa al Ecuador en juicios nacionales e internacionales, emite dictámenes vinculantes y publica criterios sobre contratos públicos, arbitrajes internacionales y absuelve consultas legales de instituciones públicas.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Permite rastrear arbitrajes internacionales contra el Ecuador, costos de defensa estatal y dictámenes sobre normativa controvertida. Útil para contrarrestar narrativas sobre litigios soberanos.</div>
+        <div>
+          <span class="card-tag">arbitrajes</span>
+          <span class="card-tag">dictámenes</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.pge.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">pge.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="ejecutiva" data-keywords="gobierno electronico tic modernizacion">
+        <div class="card-head"><span class="card-acronym">MINTEL</span><span class="card-id">EC-01-005</span></div>
+        <h3>Gobierno Electrónico del Ecuador</h3>
+        <p class="card-desc">Programa rector del Estado para la transformación digital. Publica políticas de datos abiertos, planes nacionales de gobierno electrónico, normas de interoperabilidad y proyectos de ciberseguridad gubernamental.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Marco de referencia para auditar compromisos del Estado en transparencia digital y para identificar qué información debería estar publicada por mandato.</div>
+        <div>
+          <span class="card-tag">datos abiertos</span>
+          <span class="card-tag">e-gov</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.gobiernoelectronico.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">gobiernoelectronico.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="ejecutiva" data-keywords="anticorrupcion secretaria">
+        <div class="card-head"><span class="card-acronym">SNA</span><span class="card-id">EC-01-006</span></div>
+        <h3>Secretaría Nacional Anticorrupción</h3>
+        <p class="card-desc">Entidad adscrita al Ejecutivo encargada de coordinar la política nacional anticorrupción, recibir denuncias y articular acciones con Fiscalía, Contraloría y CPCCS. Publica informes de gestión y planes estratégicos.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Trazabilidad de denuncias canalizadas por el Ejecutivo, contraste con la actuación de los órganos de control y verificación de declaraciones públicas sobre lucha contra la corrupción.</div>
+        <div>
+          <span class="card-tag">denuncias</span>
+          <span class="card-tag">políticas</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.secretariaanticorrupcion.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">secretariaanticorrupcion.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 02: FUNCIÓN LEGISLATIVA -->
+  <section class="section" id="sec-legislativa" data-section="legislativa">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-id"><span>SEC · 02</span><span class="section-id-line"></span><span>LEGISLATIVO</span></div>
+        <h2>Función Legislativa</h2>
+        <p class="section-desc">Trazabilidad parlamentaria: proyectos de ley, votaciones, asistencia, juicios políticos, fiscalización a ministros y trámite legislativo en general.</p>
+      </div>
+      <span class="section-flag high">PRIORIDAD ALTA</span>
+    </div>
+    <div class="cards" data-grid>
+
+      <div class="card" data-cat="legislativa" data-keywords="asamblea nacional legisladores asambleistas">
+        <div class="card-head"><span class="card-acronym">AN</span><span class="card-id">EC-02-001</span></div>
+        <h3>Asamblea Nacional del Ecuador</h3>
+        <p class="card-desc">Sede del poder legislativo unicameral. Publica el orden del día del Pleno, actas, votaciones nominales, proyectos de ley en trámite, comisiones especializadas, juicios políticos y la conformación de bancadas.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Permite verificar votos individuales, asistencias, conflictos de interés declarados, debates plenarios y la trazabilidad completa de una ley desde su presentación hasta su publicación. Indispensable para contrastar afirmaciones de asambleístas.</div>
+        <div>
+          <span class="card-tag priority">votaciones</span>
+          <span class="card-tag">proyectos</span>
+          <span class="card-tag">comisiones</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.asambleanacional.gob.ec/es" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">asambleanacional.gob.ec</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://www.asambleanacional.gob.ec/es/contenido/transparencia-asamblea" target="_blank" rel="noopener"><span class="card-link-label">LOTAIP</span><span class="card-link-url">/contenido/transparencia-asamblea</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://www.asambleanacional.gob.ec/es/documentos-oficiales" target="_blank" rel="noopener"><span class="card-link-label">Docs</span><span class="card-link-url">/documentos-oficiales</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="legislativa" data-keywords="estado abierto parlamento abierto micrositio">
+        <div class="card-head"><span class="card-acronym">EA-AN</span><span class="card-id">EC-02-002</span></div>
+        <h3>Micrositio de Estado Abierto · Asamblea Nacional</h3>
+        <p class="card-desc">Plataforma de Parlamento Abierto que detalla actividades del Pleno, del Consejo de Administración Legislativa (CAL), de las comisiones legislativas y la gestión individual de cada asambleísta. Incluye espacios de interacción ciudadana sobre los proyectos en curso.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Permite seguimiento granular asambleísta por asambleísta para verificar productividad legislativa real frente a discursos políticos. Fuente clave para periodismo de datos parlamentario.</div>
+        <div>
+          <span class="card-tag">transparencia</span>
+          <span class="card-tag">asambleístas</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.asambleanacional.gob.ec/es" target="_blank" rel="noopener"><span class="card-link-label">Acceso</span><span class="card-link-url">asambleanacional.gob.ec (Estado Abierto)</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="legislativa" data-keywords="datos legislativos catalogo fundapi">
+        <div class="card-head"><span class="card-acronym">CDL</span><span class="card-id">EC-02-003</span></div>
+        <h3>Catálogo de Información Legislativa</h3>
+        <p class="card-desc">Conjunto de datos abiertos sobre votaciones, intervenciones, proyectos de ley, bancadas y comisiones, resultado del segundo Plan de Acción de Estado Abierto. Construido con apoyo técnico de Fundapi, IAEN Universidad y Gobierno Abierto Ecuador.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Datos en formatos abiertos descargables que permiten análisis cuantitativo de la actividad legislativa por bancada, género, provincia y periodo. Ideal para investigación académica y periodística.</div>
+        <div>
+          <span class="card-tag">datos abiertos</span>
+          <span class="card-tag">CSV</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.fundapi.org/2024/12/catalogo-de-datos-asamblea-nacional/" target="_blank" rel="noopener"><span class="card-link-label">Ficha</span><span class="card-link-url">fundapi.org/.../catalogo-de-datos-asamblea-nacional</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 03: FUNCIÓN JUDICIAL -->
+  <section class="section" id="sec-judicial" data-section="judicial">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-id"><span>SEC · 03</span><span class="section-id-line"></span><span>JUDICIAL</span></div>
+        <h2>Función Judicial</h2>
+        <p class="section-desc">Causas penales, sentencias, expedientes, jurisprudencia y administración judicial. Frente clave cuando la desinformación implica acusaciones, procesos judiciales o medidas cautelares.</p>
+      </div>
+      <span class="section-flag high">PRIORIDAD ALTA</span>
+    </div>
+    <div class="cards" data-grid>
+
+      <div class="card" data-cat="judicial" data-keywords="consejo judicatura jueces administracion">
+        <div class="card-head"><span class="card-acronym">CJ</span><span class="card-id">EC-03-001</span></div>
+        <h3>Consejo de la Judicatura · Función Judicial</h3>
+        <p class="card-desc">Órgano de gobierno, administración y vigilancia de la Función Judicial. Publica sesiones del Pleno, resoluciones, designaciones de jueces, sumarios disciplinarios y la rendición de cuentas anual del sistema judicial.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Verificación de actos administrativos sobre jueces (designaciones, traslados, sanciones), claves para entender movimientos políticos en la judicatura y contrastar denuncias de injerencia.</div>
+        <div>
+          <span class="card-tag priority">resoluciones</span>
+          <span class="card-tag">jueces</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.funcionjudicial.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">funcionjudicial.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="judicial" data-keywords="satje consulta causas procesos">
+        <div class="card-head"><span class="card-acronym">SATJE</span><span class="card-id">EC-03-002</span></div>
+        <h3>Consulta de Causas (SATJE)</h3>
+        <p class="card-desc">Sistema Automático de Trámite Judicial Ecuatoriano. Permite consultar el estado y trámite de procesos judiciales por número de causa, actor, demandado, judicatura o materia. Es la herramienta más utilizada para verificar la existencia y estado real de un juicio.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Imprescindible para desmentir o confirmar afirmaciones del tipo "fulano fue procesado", "existe denuncia contra", "se dictó medida cautelar". Permite leer providencias, autos y sentencias en tiempo cuasi-real.</div>
+        <div>
+          <span class="card-tag priority">causas</span>
+          <span class="card-tag">sentencias</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="http://consultas.funcionjudicial.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Consulta</span><span class="card-link-url">consultas.funcionjudicial.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="judicial" data-keywords="corte nacional justicia casacion jurisprudencia">
+        <div class="card-head"><span class="card-acronym">CNJ</span><span class="card-id">EC-03-003</span></div>
+        <h3>Corte Nacional de Justicia</h3>
+        <p class="card-desc">Máximo tribunal de la justicia ordinaria. Conoce recursos de casación, juzgamiento a altas autoridades con fuero (presidente, vicepresidente, asambleístas, ministros) y dicta jurisprudencia obligatoria. Publica sentencias, resoluciones del Pleno y precedentes vinculantes.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Fuente jurídica más alta en materia ordinaria. Esencial para verificar sentencias contra autoridades con fuero y para identificar cambios en la línea jurisprudencial.</div>
+        <div>
+          <span class="card-tag">casación</span>
+          <span class="card-tag">jurisprudencia</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.cortenacional.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">cortenacional.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="judicial" data-keywords="fiscalia general estado denuncias penales">
+        <div class="card-head"><span class="card-acronym">FGE</span><span class="card-id">EC-03-004</span></div>
+        <h3>Fiscalía General del Estado</h3>
+        <p class="card-desc">Órgano autónomo de la Función Judicial que dirige la investigación pre-procesal y procesal penal. Publica boletines estadísticos del delito, casos relevantes, la Unidad Nacional de Transparencia y Lucha contra la Corrupción, y el buzón de denuncias ciudadanas.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Verificación oficial sobre el inicio o no de instrucciones fiscales, formulación de cargos y avances de investigación. Útil para desmentir difusión de noticias falsas sobre acusados.</div>
+        <div>
+          <span class="card-tag priority">investigaciones</span>
+          <span class="card-tag">estadísticas</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.fiscalia.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">fiscalia.gob.ec</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://www.fiscalia.gob.ec/transparenciafge/" target="_blank" rel="noopener"><span class="card-link-label">LOTAIP</span><span class="card-link-url">fiscalia.gob.ec/transparenciafge</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://www.fiscalia.gob.ec/unidad-nacional-de-transparencia-y-lucha-contra-la-corrupcion/" target="_blank" rel="noopener"><span class="card-link-label">UNT-LCC</span><span class="card-link-url">/unidad-nacional-de-transparencia</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="judicial" data-keywords="defensoria publica defensa jurica gratuita">
+        <div class="card-head"><span class="card-acronym">DP</span><span class="card-id">EC-03-005</span></div>
+        <h3>Defensoría Pública del Ecuador</h3>
+        <p class="card-desc">Órgano autónomo de la Función Judicial que garantiza la defensa técnica gratuita a personas que no pueden contratar abogados. Publica informes de gestión, casos emblemáticos y estadísticas de defensa pública.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Indicadores cuantitativos sobre el acceso a la justicia, vulneraciones de derechos y carga procesal del sistema. Útil para contrarrestar narrativas sobre el estado de la justicia.</div>
+        <div>
+          <span class="card-tag">defensa</span>
+          <span class="card-tag">DDHH</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.defensoria.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">defensoria.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 04: FUNCIÓN ELECTORAL -->
+  <section class="section" id="sec-electoral" data-section="electoral">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-id"><span>SEC · 04</span><span class="section-id-line"></span><span>ELECTORAL</span></div>
+        <h2>Función Electoral</h2>
+        <p class="section-desc">Toda la cadena electoral: registro de partidos, financiamiento de campañas, resultados oficiales, sanciones a candidaturas y contencioso electoral. Núcleo crítico ante elecciones, referéndum y consultas populares.</p>
+      </div>
+      <span class="section-flag high">PRIORIDAD ALTA</span>
+    </div>
+    <div class="cards" data-grid>
+
+      <div class="card" data-cat="electoral" data-keywords="cne consejo nacional electoral resultados elecciones">
+        <div class="card-head"><span class="card-acronym">CNE</span><span class="card-id">EC-04-001</span></div>
+        <h3>Consejo Nacional Electoral</h3>
+        <p class="card-desc">Máximo organismo de organización electoral del Ecuador. Convoca elecciones, controla el gasto electoral, fiscaliza partidos y movimientos políticos, y proclama resultados oficiales. Su portal contiene bases de datos históricas de todos los procesos electorales desde 2008.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Fuente única para verificar resultados, padrón electoral, financiamiento de campañas, registro de organizaciones políticas y sanciones electorales. Indispensable contra desinformación sobre fraudes, recuentos o cifras de votación.</div>
+        <div>
+          <span class="card-tag priority">elecciones</span>
+          <span class="card-tag priority">resultados</span>
+          <span class="card-tag">partidos</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.cne.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">cne.gob.ec</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://www.cne.gob.ec/resultados-electorales/" target="_blank" rel="noopener"><span class="card-link-label">Result.</span><span class="card-link-url">cne.gob.ec/resultados-electorales</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://www.cne.gob.ec/estadisticas/bases-de-datos/" target="_blank" rel="noopener"><span class="card-link-label">BBDD</span><span class="card-link-url">cne.gob.ec/estadisticas/bases-de-datos</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="electoral" data-keywords="tce tribunal contencioso electoral sentencias">
+        <div class="card-head"><span class="card-acronym">TCE</span><span class="card-id">EC-04-002</span></div>
+        <h3>Tribunal Contencioso Electoral</h3>
+        <p class="card-desc">Órgano jurisdiccional de la Función Electoral. Resuelve impugnaciones a decisiones del CNE, sanciona infracciones electorales graves (violencia política, fraude, gastos no declarados) y dicta sentencias sobre la legitimidad de procesos electorales.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Sentencias TCE permiten verificar quiénes han sido sancionados con suspensión de derechos políticos, una causal frecuente de inhabilidad para postulación que la desinformación suele ocultar o exagerar.</div>
+        <div>
+          <span class="card-tag">sentencias</span>
+          <span class="card-tag">sanciones</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.tce.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">tce.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 05: FUNCIÓN DE TRANSPARENCIA Y CONTROL SOCIAL -->
+  <section class="section" id="sec-transparencia" data-section="transparencia">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-id"><span>SEC · 05</span><span class="section-id-line"></span><span>CONTROL</span></div>
+        <h2>Función de Transparencia y Control Social</h2>
+        <p class="section-desc">Quinta función del Estado creada por la Constitución de 2008. Concentra los órganos encargados de fiscalizar al sector público, designar autoridades de control y proteger derechos ciudadanos.</p>
+      </div>
+      <span class="section-flag high">PRIORIDAD ALTA</span>
+    </div>
+    <div class="cards" data-grid>
+
+      <div class="card" data-cat="transparencia" data-keywords="cpccs participacion ciudadana control social">
+        <div class="card-head"><span class="card-acronym">CPCCS</span><span class="card-id">EC-05-001</span></div>
+        <h3>Consejo de Participación Ciudadana y Control Social</h3>
+        <p class="card-desc">Designa por concurso a la primera autoridad de Fiscalía, Contraloría, Defensoría del Pueblo, Defensoría Pública, así como a miembros del CNE, TCE y Consejo de la Judicatura. Recibe denuncias ciudadanas y articula veedurías.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Expedientes de designación contienen hojas de vida, declaraciones juramentadas, impugnaciones y resoluciones —insumo fundamental para perfilar a autoridades del sistema de control.</div>
+        <div>
+          <span class="card-tag">designaciones</span>
+          <span class="card-tag">veedurías</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.cpccs.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">cpccs.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="transparencia" data-keywords="contraloria general estado auditoria fiscal">
+        <div class="card-head"><span class="card-acronym">CGE</span><span class="card-id">EC-05-002</span></div>
+        <h3>Contraloría General del Estado</h3>
+        <p class="card-desc">Organismo técnico de control fiscal del Estado. Realiza auditorías financieras, de gestión, ambientales y forenses sobre el uso de recursos públicos. Publica informes con responsabilidades civiles culposas, indicios de responsabilidad penal y predeterminaciones.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Los informes de Contraloría son la prueba documental por excelencia sobre uso indebido de fondos públicos. Permiten cuantificar montos, identificar funcionarios responsables y rastrear glosas pendientes.</div>
+        <div>
+          <span class="card-tag priority">auditorías</span>
+          <span class="card-tag priority">glosas</span>
+          <span class="card-tag">responsabilidades</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.contraloria.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">contraloria.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="transparencia" data-keywords="defensoria pueblo derechos humanos lotaip">
+        <div class="card-head"><span class="card-acronym">DPE</span><span class="card-id">EC-05-003</span></div>
+        <h3>Defensoría del Pueblo</h3>
+        <p class="card-desc">Promueve y protege los derechos humanos y la naturaleza. Es además el órgano rector en materia de transparencia y acceso a la información pública (LOTAIP), atribución ratificada por la Corte Constitucional en sentencia 21-23-IN/24.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Si una institución pública no entrega información, la DPE es la vía formal de reclamo. Sus informes vinculantes a Contraloría son herramienta clave para presionar el cumplimiento de la LOTAIP.</div>
+        <div>
+          <span class="card-tag priority">LOTAIP</span>
+          <span class="card-tag">DDHH</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.dpe.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">dpe.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="transparencia" data-keywords="superintendencia bancos financiero">
+        <div class="card-head"><span class="card-acronym">SB</span><span class="card-id">EC-05-004</span></div>
+        <h3>Superintendencia de Bancos</h3>
+        <p class="card-desc">Controla y supervisa el sistema financiero público y privado. Publica boletines, indicadores de solvencia, sanciones a entidades financieras y normativa prudencial. Custodia información de prevención de lavado de activos.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Verificación de la situación real de bancos, cooperativas grandes y otras entidades financieras. Útil para desmentir crisis financieras inventadas o, al contrario, confirmar irregularidades.</div>
+        <div>
+          <span class="card-tag">bancos</span>
+          <span class="card-tag">PLA</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.superbancos.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">superbancos.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="transparencia" data-keywords="superintendencia companias mercado valores">
+        <div class="card-head"><span class="card-acronym">SCVS</span><span class="card-id">EC-05-005</span></div>
+        <h3>Superintendencia de Compañías, Valores y Seguros</h3>
+        <p class="card-desc">Registra y controla a las sociedades mercantiles ecuatorianas, al mercado de valores y al sector asegurador. Su portal de consultas permite buscar compañías por RUC, nombre, accionistas, representantes legales y estados financieros.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Recurso central para investigación patrimonial. Permite identificar conflictos de interés de funcionarios, empresas vinculadas a contratistas del Estado y estructuras societarias detrás de actores políticos.</div>
+        <div>
+          <span class="card-tag priority">empresas</span>
+          <span class="card-tag">accionistas</span>
+          <span class="card-tag">RUC</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.supercias.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">supercias.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="transparencia" data-keywords="superintendencia economia popular solidaria cooperativas">
+        <div class="card-head"><span class="card-acronym">SEPS</span><span class="card-id">EC-05-006</span></div>
+        <h3>Superintendencia de Economía Popular y Solidaria</h3>
+        <p class="card-desc">Controla cooperativas de ahorro y crédito, mutualistas, cajas de ahorro y demás organizaciones del sector popular y solidario. Publica indicadores, registros y sanciones.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Sector relevante para rastrear movimientos financieros fuera de la banca tradicional, esquemas Ponzi disfrazados de cooperativas y vinculación de actores políticos con entidades del sistema solidario.</div>
+        <div>
+          <span class="card-tag">cooperativas</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.seps.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">seps.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 06: JUSTICIA CONSTITUCIONAL -->
+  <section class="section" id="sec-constitucional" data-section="constitucional">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-id"><span>SEC · 06</span><span class="section-id-line"></span><span>CONSTITUCIONAL</span></div>
+        <h2>Justicia Constitucional</h2>
+        <p class="section-desc">Órgano supremo de interpretación constitucional. Determina la validez última de leyes, decretos y referendos, y resuelve garantías jurisdiccionales con efectos generales.</p>
+      </div>
+      <span class="section-flag med">PRIORIDAD MEDIA-ALTA</span>
+    </div>
+    <div class="cards" data-grid>
+
+      <div class="card" data-cat="constitucional" data-keywords="corte constitucional cce sentencias dictamenes">
+        <div class="card-head"><span class="card-acronym">CCE</span><span class="card-id">EC-06-001</span></div>
+        <h3>Corte Constitucional del Ecuador</h3>
+        <p class="card-desc">Máximo intérprete de la Constitución. Conoce acciones de inconstitucionalidad, dictámenes previos sobre tratados, consultas populares, enmiendas constitucionales, y resuelve acciones extraordinarias de protección. Publica sentencias, dictámenes y boletines jurisprudenciales.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Frente a desinformación sobre validez de leyes, alcances de derechos fundamentales o legitimidad de referendos, sus sentencias y dictámenes son la fuente jurídica de cierre. El buscador esacc.corteconstitucional.gob.ec permite búsqueda avanzada de sentencias.</div>
+        <div>
+          <span class="card-tag priority">sentencias</span>
+          <span class="card-tag priority">dictámenes</span>
+          <span class="card-tag">jurisprudencia</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.corteconstitucional.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">corteconstitucional.gob.ec</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://esacc.corteconstitucional.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Buscador</span><span class="card-link-url">esacc.corteconstitucional.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 07: DATOS ESTADÍSTICOS Y ECONÓMICOS -->
+  <section class="section" id="sec-datos" data-section="datos">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-id"><span>SEC · 07</span><span class="section-id-line"></span><span>DATOS</span></div>
+        <h2>Estadística, Economía y Contratación Pública</h2>
+        <p class="section-desc">Datos duros: cifras oficiales sobre población, empleo, pobreza, indicadores económicos, recaudación tributaria, contrataciones del Estado y movimientos del Registro Civil.</p>
+      </div>
+      <span class="section-flag high">PRIORIDAD ALTA</span>
+    </div>
+    <div class="cards" data-grid>
+
+      <div class="card" data-cat="datos" data-keywords="inec instituto nacional estadistica censos ecuadorencifras">
+        <div class="card-head"><span class="card-acronym">INEC</span><span class="card-id">EC-07-001</span></div>
+        <h3>Instituto Nacional de Estadística y Censos · Ecuador en Cifras</h3>
+        <p class="card-desc">Ente rector del Sistema Estadístico Nacional. Publica bases de datos, metodologías, mapas temáticos, visualizadores interactivos y el Banco de Datos Abiertos sobre empleo, pobreza, salud, vivienda, economía y medioambiente. Punto único de la estadística oficial.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Arma decisiva contra desinformación con cifras inventadas (desempleo, pobreza, inflación, mortalidad). Cualquier dato estadístico citado en el debate público debe poder rastrearse al INEC.</div>
+        <div>
+          <span class="card-tag priority">estadísticas</span>
+          <span class="card-tag priority">CSV</span>
+          <span class="card-tag">visualizadores</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.ecuadorencifras.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Portal</span><span class="card-link-url">ecuadorencifras.gob.ec</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://www.ecuadorencifras.gob.ec/estadisticas/" target="_blank" rel="noopener"><span class="card-link-label">BBDD</span><span class="card-link-url">/estadisticas</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="datos" data-keywords="datos abiertos catalogo nacional ckan">
+        <div class="card-head"><span class="card-acronym">DAEC</span><span class="card-id">EC-07-002</span></div>
+        <h3>Portal Nacional de Datos Abiertos</h3>
+        <p class="card-desc">Catálogo oficial de datos abiertos gubernamentales del Ecuador. Concentra datasets de administración pública, ambiente, salud, seguridad, energía, transporte y muchos más, en formatos descargables (CSV, ODS) y bajo licencias abiertas.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Permite ejecutar análisis cuantitativos propios sin depender de comunicados oficiales. Cuando una institución no responde, frecuentemente el dataset bruto ya está aquí.</div>
+        <div>
+          <span class="card-tag">datos abiertos</span>
+          <span class="card-tag">CSV</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.datosabiertos.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Portal</span><span class="card-link-url">datosabiertos.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="datos" data-keywords="sni sistema nacional informacion senplades planificacion">
+        <div class="card-head"><span class="card-acronym">SNI</span><span class="card-id">EC-07-003</span></div>
+        <h3>Sistema Nacional de Información</h3>
+        <p class="card-desc">Plataforma articulada por la planificación nacional que integra indicadores de instituciones públicas, indicadores territoriales (provinciales y cantonales), Plan Nacional de Desarrollo y seguimiento al cumplimiento de los Objetivos de Desarrollo Sostenible.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Indicadores territoriales clave para periodismo local y verificación de afirmaciones sobre obras, gestión seccional y desigualdades regionales.</div>
+        <div>
+          <span class="card-tag">indicadores</span>
+          <span class="card-tag">PND</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://sni.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">sni.gob.ec</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://sni.gob.ec/datosabiertos" target="_blank" rel="noopener"><span class="card-link-label">Datos</span><span class="card-link-url">sni.gob.ec/datosabiertos</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="datos" data-keywords="sercop soce compras publicas contratacion">
+        <div class="card-head"><span class="card-acronym">SERCOP</span><span class="card-id">EC-07-004</span></div>
+        <h3>Servicio Nacional de Contratación Pública · SOCE</h3>
+        <p class="card-desc">Rector del Sistema Nacional de Contratación Pública. Administra el SOCE (Sistema Oficial de Contratación del Estado), donde se publican todos los procesos de contratación pública. Permite búsqueda por entidad contratante, proveedor, monto y tipo de procedimiento.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Fuente esencial para periodismo de investigación sobre contratación pública: contratos directos sospechosos, proveedores recurrentes vinculados a funcionarios, sobreprecios y emergencias mal justificadas. La búsqueda de proveedores permite rastreo cruzado.</div>
+        <div>
+          <span class="card-tag priority">contratos</span>
+          <span class="card-tag priority">proveedores</span>
+          <span class="card-tag">PAC</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://portal.compraspublicas.gob.ec/sercop/" target="_blank" rel="noopener"><span class="card-link-label">Portal</span><span class="card-link-url">portal.compraspublicas.gob.ec/sercop</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://www.compraspublicas.gob.ec/ProcesoContratacion/compras/PC/buscarProceso.cpe?sg=1" target="_blank" rel="noopener"><span class="card-link-label">Procesos</span><span class="card-link-url">/buscarProceso</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://www.compraspublicas.gob.ec/ProcesoContratacion/compras/EP/BusquedaProveedorCpc.cpe" target="_blank" rel="noopener"><span class="card-link-label">Provd.</span><span class="card-link-url">/BusquedaProveedorCpc</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="datos" data-keywords="sri servicio rentas internas impuestos tributario">
+        <div class="card-head"><span class="card-acronym">SRI</span><span class="card-id">EC-07-005</span></div>
+        <h3>Servicio de Rentas Internas</h3>
+        <p class="card-desc">Administración tributaria central. Su portal expone consultas públicas de RUC, validación de comprobantes electrónicos, deudores firmes, exoneración tributaria y estadísticas de recaudación nacional por sector y región.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Verificación de RUC y estado tributario de personas y empresas. La lista de mayores contribuyentes y deudores firmes es información pública útil para investigar redes empresariales.</div>
+        <div>
+          <span class="card-tag">RUC</span>
+          <span class="card-tag">contribuyentes</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.sri.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">sri.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="datos" data-keywords="banco central bce indicadores economicos">
+        <div class="card-head"><span class="card-acronym">BCE</span><span class="card-id">EC-07-006</span></div>
+        <h3>Banco Central del Ecuador</h3>
+        <p class="card-desc">Custodio de la información económica y financiera oficial del país. Publica boletines mensuales, cuentas nacionales, balanza de pagos, deuda pública, reservas internacionales, riesgo país y estadísticas del sistema financiero.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Fuente única para verificar narrativas sobre la economía: deuda externa, riesgo país, crecimiento del PIB, remesas. Cuando un actor político cita cifras económicas, el BCE es el árbitro objetivo.</div>
+        <div>
+          <span class="card-tag">macroeconomía</span>
+          <span class="card-tag">deuda</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.bce.fin.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">bce.fin.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="datos" data-keywords="registro civil cedulacion identificacion">
+        <div class="card-head"><span class="card-acronym">DIGERCIC</span><span class="card-id">EC-07-007</span></div>
+        <h3>Registro Civil, Identificación y Cedulación</h3>
+        <p class="card-desc">Custodia la identidad legal de las personas en Ecuador: cédula, pasaporte, partidas de nacimiento, matrimonio y defunción. Provee servicios de verificación a otras instituciones del Estado.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Validación de identidad pública. La información detallada está protegida por privacidad, pero existen mecanismos formales para certificaciones cuando hay interés legítimo (procesos judiciales, herencias, periodismo de interés público).</div>
+        <div>
+          <span class="card-tag">identidad</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.registrocivil.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">registrocivil.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="datos" data-keywords="arcotel telecomunicaciones radio television concesiones">
+        <div class="card-head"><span class="card-acronym">ARCOTEL</span><span class="card-id">EC-07-008</span></div>
+        <h3>Agencia de Regulación y Control de Telecomunicaciones</h3>
+        <p class="card-desc">Regulador del espectro radioeléctrico, concesiones de radio, televisión, telefonía e internet. Publica la lista de concesionarios, frecuencias asignadas, sanciones por contenido y obligaciones tarifarias.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Identificación de propiedad real de medios de comunicación (frecuencias, concesionarios, accionistas indirectos), pieza clave para mapear ecosistema mediático y conexiones políticas.</div>
+        <div>
+          <span class="card-tag">medios</span>
+          <span class="card-tag">concesiones</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.arcotel.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">arcotel.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 08: VERIFICACIÓN Y PERIODISMO -->
+  <section class="section" id="sec-prensa" data-section="prensa">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-id"><span>SEC · 08</span><span class="section-id-line"></span><span>VERIFICACIÓN</span></div>
+        <h2>Verificación de Hechos y Periodismo de Investigación</h2>
+        <p class="section-desc">Capa de contraste independiente. Organizaciones especializadas en chequeo factual y medios con énfasis en investigación que ya han procesado masivamente las fuentes oficiales.</p>
+      </div>
+      <span class="section-flag med">PRIORIDAD MEDIA</span>
+    </div>
+    <div class="cards" data-grid>
+
+      <div class="card" data-cat="prensa" data-keywords="ecuador chequea fact checking verificacion">
+        <div class="card-head"><span class="card-acronym">EC-CHK</span><span class="card-id">EC-08-001</span></div>
+        <h3>Ecuador Chequea</h3>
+        <p class="card-desc">Iniciativa de verificación de declaraciones públicas de actores políticos ecuatorianos. Califica afirmaciones (verdadero / falso / engañoso) con metodología documentada y enlaces a fuentes primarias.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Acceso rápido a verificaciones ya hechas. Útil para identificar patrones de desinformación recurrente y referenciar trabajos previos.</div>
+        <div>
+          <span class="card-tag">fact-checking</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.ecuadorchequea.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">ecuadorchequea.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="prensa" data-keywords="lupa media verificacion datos">
+        <div class="card-head"><span class="card-acronym">LUPA</span><span class="card-id">EC-08-002</span></div>
+        <h3>Lupa Media</h3>
+        <p class="card-desc">Medio digital con enfoque en periodismo de datos, verificación y cobertura crítica de la actualidad ecuatoriana. Publica reportajes basados en cruces de bases de datos oficiales.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Referencia de calidad para identificar metodologías de cruce de datos públicos aplicadas a casos concretos.</div>
+        <div>
+          <span class="card-tag">periodismo de datos</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://lupamedia.com.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">lupamedia.com.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="prensa" data-keywords="gk periodismo independiente">
+        <div class="card-head"><span class="card-acronym">GK</span><span class="card-id">EC-08-003</span></div>
+        <h3>GK · GK City</h3>
+        <p class="card-desc">Medio digital de periodismo independiente con cobertura política, social y cultural. Mantiene una línea editorial de explicar contextos complejos con apoyo en datos abiertos y verificación de declaraciones.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Buen punto de partida para reconstruir contexto histórico de actores políticos y procesos en curso.</div>
+        <div>
+          <span class="card-tag">contexto</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://gk.city" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">gk.city</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="prensa" data-keywords="plan v periodismo investigacion">
+        <div class="card-head"><span class="card-acronym">PLAN-V</span><span class="card-id">EC-08-004</span></div>
+        <h3>Plan V</h3>
+        <p class="card-desc">Plataforma de periodismo de investigación. Publica reportajes extensos sobre poder político, redes empresariales y casos de corrupción, con uso intensivo de archivos públicos y filtraciones validadas.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Archivo periodístico muy útil para reconstruir trayectorias de funcionarios y grupos económicos.</div>
+        <div>
+          <span class="card-tag">investigación</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.planv.com.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">planv.com.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="prensa" data-keywords="primicias periodismo politico">
+        <div class="card-head"><span class="card-acronym">PRIM</span><span class="card-id">EC-08-005</span></div>
+        <h3>Primicias</h3>
+        <p class="card-desc">Medio digital de información general con cobertura política, económica y judicial diaria. Su sección de "datos" publica análisis cuantitativos sobre el Estado ecuatoriano.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Útil para cobertura de coyuntura. La sección de datos referencia frecuentemente las fuentes oficiales primarias.</div>
+        <div>
+          <span class="card-tag">actualidad</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.primicias.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">primicias.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="prensa" data-keywords="mil hojas investigacion periodistica">
+        <div class="card-head"><span class="card-acronym">MIL</span><span class="card-id">EC-08-006</span></div>
+        <h3>Mil Hojas</h3>
+        <p class="card-desc">Medio de investigación periodística enfocado en política, poder y casos de corrupción. Trabaja con documentación primaria, registros públicos y entrevistas a fuentes en profundidad.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Reportajes que conectan piezas dispersas del expediente público en narrativas coherentes y verificables.</div>
+        <div>
+          <span class="card-tag">investigación</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.4pelagatos.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">4pelagatos.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 09: HERRAMIENTAS COMPLEMENTARIAS -->
+  <section class="section" id="sec-extra" data-section="extra">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-id"><span>SEC · 09</span><span class="section-id-line"></span><span>HERRAMIENTAS</span></div>
+        <h2>Herramientas OSINT Complementarias e Internacionales</h2>
+        <p class="section-desc">Plataformas regionales, internacionales y de sociedad civil que enriquecen el análisis cuando la fuente nacional es insuficiente o cuando se requiere contraste internacional.</p>
+      </div>
+      <span class="section-flag std">COMPLEMENTARIO</span>
+    </div>
+    <div class="cards" data-grid>
+
+      <div class="card" data-cat="extra" data-keywords="gobierno abierto ecuador estado abierto compromisos">
+        <div class="card-head"><span class="card-acronym">GAE</span><span class="card-id">EC-09-001</span></div>
+        <h3>Gobierno Abierto Ecuador</h3>
+        <p class="card-desc">Espacio de seguimiento a los Planes de Acción de Estado Abierto y a los compromisos de transparencia asumidos por el Ecuador ante la Alianza para el Gobierno Abierto (OGP).</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Permite contrastar compromisos formales del Estado con su nivel real de cumplimiento. Fuente útil para argumentar incumplimientos de transparencia.</div>
+        <div>
+          <span class="card-tag">OGP</span>
+          <span class="card-tag">compromisos</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.gobiernoabierto.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">gobiernoabierto.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="extra" data-keywords="fundapi sociedad civil datos abiertos">
+        <div class="card-head"><span class="card-acronym">FUNDAPI</span><span class="card-id">EC-09-002</span></div>
+        <h3>Fundación de Ayuda por Internet (Fundapi)</h3>
+        <p class="card-desc">Organización de sociedad civil enfocada en tecnologías para el desarrollo, datos abiertos y transparencia. Co-impulsora del Catálogo de Información Legislativa y de iniciativas de gobierno abierto en Ecuador.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Aliado natural para acceso a datasets cocreados con el Estado y referencia técnica en buenas prácticas de apertura de datos.</div>
+        <div>
+          <span class="card-tag">ONG</span>
+          <span class="card-tag">datos</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.fundapi.org" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">fundapi.org</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="extra" data-keywords="transparencia internacional ecuador corrupcion">
+        <div class="card-head"><span class="card-acronym">TI-EC</span><span class="card-id">EC-09-003</span></div>
+        <h3>Transparencia Internacional · Capítulo Ecuador</h3>
+        <p class="card-desc">Capítulo nacional de la red global Transparency International. Publica el Índice de Percepción de la Corrupción aplicado a Ecuador y estudios temáticos sobre integridad pública.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Referencia comparativa internacional sobre el desempeño del Ecuador en métricas de corrupción y gobernanza.</div>
+        <div>
+          <span class="card-tag">índices</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.transparency.org/en/countries/ecuador" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">transparency.org/en/countries/ecuador</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="extra" data-keywords="connectas periodismo investigacion latinoamerica">
+        <div class="card-head"><span class="card-acronym">CNCT</span><span class="card-id">EC-09-004</span></div>
+        <h3>CONNECTAS</h3>
+        <p class="card-desc">Plataforma de periodismo de investigación regional para las Américas. Coordina investigaciones transfronterizas en las que Ecuador suele ser uno de los países cubiertos.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Reportajes con perspectiva regional para situar fenómenos ecuatorianos (lavado, narcotráfico, redes empresariales) en su contexto continental.</div>
+        <div>
+          <span class="card-tag">regional</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.connectas.org" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">connectas.org</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="extra" data-keywords="occrp crimen organizado investigacion">
+        <div class="card-head"><span class="card-acronym">OCCRP</span><span class="card-id">EC-09-005</span></div>
+        <h3>OCCRP · Organized Crime and Corruption Reporting Project</h3>
+        <p class="card-desc">Consorcio global de periodismo de investigación sobre crimen organizado y corrupción. Su plataforma Aleph contiene millones de documentos públicos, incluidos registros relacionados con Ecuador.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Búsqueda federada en miles de bases públicas mundiales. Esencial para investigaciones que involucren actores transnacionales, empresas offshore y filtraciones masivas.</div>
+        <div>
+          <span class="card-tag">Aleph</span>
+          <span class="card-tag">offshore</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.occrp.org" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">occrp.org</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://aleph.occrp.org" target="_blank" rel="noopener"><span class="card-link-label">Aleph</span><span class="card-link-url">aleph.occrp.org</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="extra" data-keywords="insight crime seguridad narcotrafico">
+        <div class="card-head"><span class="card-acronym">IC</span><span class="card-id">EC-09-006</span></div>
+        <h3>InSight Crime</h3>
+        <p class="card-desc">Think tank y medio especializado en crimen organizado en las Américas. Publica perfiles detallados de grupos criminales con operaciones en Ecuador y análisis sobre dinámicas de violencia.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Referencia clave ante desinformación o sobre-simplificación de fenómenos de seguridad y crimen organizado en Ecuador.</div>
+        <div>
+          <span class="card-tag">seguridad</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://insightcrime.org/es/" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">insightcrime.org</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="extra" data-keywords="archivo web wayback machine internet archive">
+        <div class="card-head"><span class="card-acronym">IA</span><span class="card-id">EC-09-007</span></div>
+        <h3>Internet Archive · Wayback Machine</h3>
+        <p class="card-desc">Archivo histórico de la web. Permite recuperar versiones anteriores de portales institucionales ecuatorianos, declaraciones eliminadas, documentos borrados y rediseños que ocultan contenido sensible.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Cuando un decreto, comunicado o documento "desaparece" del portal oficial, Wayback Machine suele conservarlo. Es la defensa principal contra la manipulación silenciosa del archivo digital del Estado.</div>
+        <div>
+          <span class="card-tag priority">archivo</span>
+          <span class="card-tag">preservación</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://web.archive.org" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">web.archive.org</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="extra" data-keywords="opencorporates registro empresas global">
+        <div class="card-head"><span class="card-acronym">OC</span><span class="card-id">EC-09-008</span></div>
+        <h3>OpenCorporates</h3>
+        <p class="card-desc">Base de datos abierta más grande del mundo de información corporativa. Incluye datos de compañías ecuatorianas y permite búsqueda cruzada con jurisdicciones extranjeras.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Complemento del registro nacional para rastrear vínculos transfronterizos de empresas y accionistas ecuatorianos en otras jurisdicciones.</div>
+        <div>
+          <span class="card-tag">empresas</span>
+          <span class="card-tag">global</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://opencorporates.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">opencorporates.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 10: GOBIERNOS AUTÓNOMOS DESCENTRALIZADOS · AZUAY -->
+  <section class="section" id="sec-azuay" data-section="azuay">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-id"><span>SEC · 10</span><span class="section-id-line"></span><span>TERRITORIAL · AZUAY</span></div>
+        <h2>Gobierno Provincial y GADs Municipales del Azuay</h2>
+        <p class="section-desc">Cartografía local del poder. La provincia del Azuay se compone del Gobierno Provincial (Prefectura) y de 15 cantones, cada uno con su Gobierno Autónomo Descentralizado Municipal. Cada GAD publica obligatoriamente bajo LOTAIP su presupuesto, contrataciones, planificación territorial, ordenanzas y rendición de cuentas, siendo el primer frente de verificación para cualquier afirmación política sobre obras, gestión local, contratación o uso de recursos en el territorio austral.</p>
+      </div>
+      <span class="section-flag high">PRIORIDAD ALTA</span>
+    </div>
+    <div class="cards" data-grid>
+
+      <div class="card" data-cat="azuay" data-keywords="prefectura azuay gobierno provincial lloret vialidad">
+        <div class="card-head"><span class="card-acronym">GPA</span><span class="card-id">AZ-10-001</span></div>
+        <h3>Gobierno Provincial del Azuay · Prefectura</h3>
+        <p class="card-desc">GAD provincial con competencias exclusivas en vialidad rural, riego, fomento productivo, gestión ambiental provincial y cooperación internacional. Publica el Plan de Desarrollo y Ordenamiento Territorial (PDOT) provincial, ordenanzas provinciales, presupuesto anual y rendición de cuentas. Liderado por el Prefecto Juan Cristóbal Lloret (RC) y la Viceprefecta Ale Quintanilla.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Verificación de obras viales rurales (atribución exclusiva), proyectos de riego, convenios con municipios y financiamiento externo. Útil para contrastar narrativas sobre cumplimiento de competencias provinciales y para rastrear convenios con cada uno de los 15 GADs cantonales.</div>
+        <div>
+          <span class="card-tag priority">PDOT</span>
+          <span class="card-tag">vialidad rural</span>
+          <span class="card-tag">convenios</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.azuay.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">azuay.gob.ec</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://www.gob.ec/gpa" target="_blank" rel="noopener"><span class="card-link-label">GobEc</span><span class="card-link-url">gob.ec/gpa</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="cuenca municipio gad alcalde capital azuay">
+        <div class="card-head"><span class="card-acronym">GADC</span><span class="card-id">AZ-10-002</span></div>
+        <h3>GAD Municipal de Cuenca</h3>
+        <p class="card-desc">Municipio de la capital provincial y tercera ciudad del Ecuador (~625.000 habitantes). Concentra el mayor presupuesto cantonal del Azuay, sus empresas públicas metropolitanas (ETAPA EP, EMOV EP, EMUVI EP) y un portal "Cuenca en Línea" para consulta y pago en línea de obligaciones. Publica el PDOT cantonal, PUGS, ordenanzas, actas del Concejo y resoluciones administrativas.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">El GAD de Cuenca es la principal arena política local de la provincia. Sus contrataciones, convenios con empresas públicas y conflictos con la Prefectura son nodos críticos. La sección de obras de beneficio general (OBGS) y los exámenes especiales de la Contraloría suelen estar publicados directamente.</div>
+        <div>
+          <span class="card-tag priority">Concejo</span>
+          <span class="card-tag">ordenanzas</span>
+          <span class="card-tag">empresas públicas</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.cuenca.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">cuenca.gob.ec</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://enlinea.cuenca.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">En línea</span><span class="card-link-url">enlinea.cuenca.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="gualaceo gad municipio azuay artesania">
+        <div class="card-head"><span class="card-acronym">GADG</span><span class="card-id">AZ-10-003</span></div>
+        <h3>GAD Municipal de Gualaceo</h3>
+        <p class="card-desc">Cantón de aproximadamente 48.700 habitantes (segundo más poblado de la provincia). Publica boletines de prensa, convocatorias a sesión ordinaria del Concejo Cantonal, ordenanzas tributarias (contribución especial de mejoras) y cumplimientos de sentencias constitucionales.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Útil para rastrear sentencias judiciales contra el GAD, contribuciones de mejoras polémicas y convenios con la Prefectura y MAG. Las disculpas públicas publicadas son indicador directo de procesos perdidos.</div>
+        <div>
+          <span class="card-tag">Concejo</span>
+          <span class="card-tag">sentencias</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://gualaceo.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">gualaceo.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="paute gad municipio hidroelectrica azuay">
+        <div class="card-head"><span class="card-acronym">GADP</span><span class="card-id">AZ-10-004</span></div>
+        <h3>GAD Municipal de Paute</h3>
+        <p class="card-desc">Cantón con ~29.000 habitantes, asentado en la cuenca del río Paute (mayor complejo hidroeléctrico del país). El portal expone consulta y pago de impuestos en línea, ordenanzas, presupuesto y rendición de cuentas anual.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Zona sensible por la presencia hidroeléctrica: contrastar regalías, compensaciones ambientales y la articulación del GAD con CELEC EP. La consulta de impuestos en línea permite verificar contribuyentes específicos.</div>
+        <div>
+          <span class="card-tag">impuestos</span>
+          <span class="card-tag">hidroeléctrica</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.paute.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">paute.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="sigsig gad municipio azuay artesania paja toquilla">
+        <div class="card-head"><span class="card-acronym">GADS</span><span class="card-id">AZ-10-005</span></div>
+        <h3>GAD Municipal de Sígsig</h3>
+        <p class="card-desc">Cantón andino al sur-este del Azuay, ~26.000 habitantes. Publica procesos especiales de arrendamiento de bienes inmuebles, ordenanzas y rendición de cuentas. Frontera con la provincia de Morona Santiago (Gualaquiza).</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Frontera político-territorial relevante. La publicación de procesos de arrendamiento especial es ventana directa para detectar contratos con criterios discrecionales.</div>
+        <div>
+          <span class="card-tag">arrendamientos</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.sigsig.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">sigsig.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="chordeleg gad municipio joyeria azuay">
+        <div class="card-head"><span class="card-acronym">GADCh</span><span class="card-id">AZ-10-006</span></div>
+        <h3>GAD Municipal de Chordeleg</h3>
+        <p class="card-desc">Cantón joyero del Azuay, ~14.980 habitantes en 104,98 km². Publica datos generales del cantón, plan de desarrollo, ordenanzas y rendición de cuentas.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Cantón con alta dependencia del sector artesanal y minero a pequeña escala. Útil contrastar políticas de fomento productivo con la realidad económica documentada por INEC.</div>
+        <div>
+          <span class="card-tag">PDOT</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://chordeleg.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">chordeleg.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="santa isabel gad municipio yunguilla azuay">
+        <div class="card-head"><span class="card-acronym">GADSI</span><span class="card-id">AZ-10-007</span></div>
+        <h3>GAD Municipal de Santa Isabel</h3>
+        <p class="card-desc">Cantón del valle de Yunguilla, ~20.790 habitantes. Su Alcaldía mantiene un portal con consulta de impuestos, directorio de concejales, ordenanzas y trámites en línea.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Núcleo turístico y agrícola del sur del Azuay. La sección de concejales facilita perfilamiento de actores políticos locales.</div>
+        <div>
+          <span class="card-tag">concejales</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://santaisabel.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">santaisabel.gob.ec</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://www.gob.ec/gadmc-santa-isabel" target="_blank" rel="noopener"><span class="card-link-label">GobEc</span><span class="card-link-url">gob.ec/gadmc-santa-isabel</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="giron gad municipio batalla portete azuay">
+        <div class="card-head"><span class="card-acronym">GADGi</span><span class="card-id">AZ-10-008</span></div>
+        <h3>GAD Municipal de Girón</h3>
+        <p class="card-desc">Cantón histórico (Batalla de Tarqui / Portete de Tarqui), ~13.070 habitantes. Su portal publica el PDOT cantonal, el LOTAIP mensual con los 24 literales obligatorios, presupuesto y procesos de contratación.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Su sección LOTAIP es modelo de cumplimiento estructurado por literal. Punto de partida útil para entender qué debe publicar cualquier GAD bajo la ley.</div>
+        <div>
+          <span class="card-tag priority">LOTAIP</span>
+          <span class="card-tag">PDOT</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.giron.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">giron.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="nabon gad municipio indigena patricio maldonado azuay">
+        <div class="card-head"><span class="card-acronym">GADN</span><span class="card-id">AZ-10-009</span></div>
+        <h3>GAD Municipal de Nabón</h3>
+        <p class="card-desc">Cantón intercultural con alta población indígena, ~17.250 habitantes. Liderado por el Alcalde Patricio Maldonado. Publica obras, proyectos de cooperación con organismos internacionales (Ayuda en Acción) y rendición de cuentas.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Cantón con fuerte componente comunitario. Útil verificar convenios con cooperación internacional y la efectiva ejecución de proyectos productivos publicitados.</div>
+        <div>
+          <span class="card-tag">cooperación</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.nabon.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">nabon.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="ona gad municipio shincata azuay">
+        <div class="card-head"><span class="card-acronym">GADO</span><span class="card-id">AZ-10-010</span></div>
+        <h3>GAD Municipal de Oña</h3>
+        <p class="card-desc">Cantón de ~4.090 habitantes en el extremo sur del Azuay, frontera con Loja. Portal institucional con noticias, rendición de cuentas y trámites.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Cantón pequeño con presupuesto reducido: cada contrato tiene peso relativo alto. Útil monitoreo de procesos de contratación menor frecuentemente fragmentados.</div>
+        <div>
+          <span class="card-tag">rural</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://ona.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">ona.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="pucara gad municipio mineria azuay">
+        <div class="card-head"><span class="card-acronym">GADPu</span><span class="card-id">AZ-10-011</span></div>
+        <h3>GAD Municipal de Pucará</h3>
+        <p class="card-desc">Cantón de ~10.600 habitantes con actividad minera. Administración 2023-2027. Su portal publica noticias de obras, concursos de méritos y oposición, contacto y ubicación geográfica.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Cantón sensible por proximidad a operaciones mineras. Útil rastrear convenios con compañías mineras, regalías recibidas y consultas previas comunitarias.</div>
+        <div>
+          <span class="card-tag priority">minería</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://gadmpucara.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">gadmpucara.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="san fernando gad municipio chumblin azuay claudio loja">
+        <div class="card-head"><span class="card-acronym">GADSF</span><span class="card-id">AZ-10-012</span></div>
+        <h3>GAD Municipal de San Fernando</h3>
+        <p class="card-desc">Cantón de ~4.170 habitantes. Administración del Alcalde Claudio Loja. El portal detalla la estructura de la municipalidad, áreas, directorio de funcionarios con extensiones telefónicas, planificación territorial y procesos de contratación pública.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Su directorio detallado de funcionarios facilita el contacto directo y la solicitud LOTAIP nominal. La socialización de presupuestos participativos publicada en su portal es una pieza relevante para auditoría ciudadana.</div>
+        <div>
+          <span class="card-tag">presupuesto participativo</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://sanfernando.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">sanfernando.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="el pan gad municipio azuay">
+        <div class="card-head"><span class="card-acronym">GADEP</span><span class="card-id">AZ-10-013</span></div>
+        <h3>GAD Municipal de El Pan</h3>
+        <p class="card-desc">Cantón de ~3.110 habitantes, uno de los más pequeños de la provincia. Portal institucional con publicaciones obligatorias bajo LOTAIP y rendición de cuentas.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Pequeña escala administrativa: ideal para monitoreo intensivo de cumplimiento LOTAIP y verificación granular de cada contrato.</div>
+        <div>
+          <span class="card-tag">rural</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://elpan.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">elpan.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="guachapala gad municipio azuay">
+        <div class="card-head"><span class="card-acronym">GADGu</span><span class="card-id">AZ-10-014</span></div>
+        <h3>GAD Municipal de Guachapala</h3>
+        <p class="card-desc">Cantón de ~3.830 habitantes y 39,59 km² (el más pequeño en territorio del Azuay). Portal con sección Municipio, Servicios y Alcaldía.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Convenios con Asfaltar EP y la Prefectura son frecuentes y verificables vía publicaciones cruzadas (GAD + Prefectura + SERCOP).</div>
+        <div>
+          <span class="card-tag">convenios</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://guachapala.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">guachapala.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="sevilla de oro gad municipio mazar hidroelectrica azuay">
+        <div class="card-head"><span class="card-acronym">GADSO</span><span class="card-id">AZ-10-015</span></div>
+        <h3>GAD Municipal de Sevilla de Oro</h3>
+        <p class="card-desc">Cantón en la cuenca del Paute, vinculado al complejo hidroeléctrico Paute-Mazar. Alcalde Byron Fabricio Rubio Heras. Publica PDOT, ordenanzas y rendición de cuentas.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Cantón estratégico por la presencia hidroeléctrica de gran escala. Permite rastrear compensaciones, convenios con CELEC y planes de manejo ambiental territorial.</div>
+        <div>
+          <span class="card-tag priority">hidroeléctrica</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://sevilladeoro.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">sevilladeoro.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="camilo ponce enriquez gad municipio mineria azuay litoral">
+        <div class="card-head"><span class="card-acronym">GADCP</span><span class="card-id">AZ-10-016</span></div>
+        <h3>GAD Municipal de Camilo Ponce Enríquez</h3>
+        <p class="card-desc">Cantón litoral del Azuay (creado en 2002), ~22.810 habitantes según censo 2022. Eje de la minería metálica industrial (Bella Rica, Zhumiral). Publica información LOTAIP, ordenanzas y rendición de cuentas. Veedurías ciudadanas del CPCCS han vigilado periódicamente su gestión.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Punto crítico para investigación periodística: convergencia de minería formal, minería ilegal, regalías y conflictos socioambientales. Cruzar con resoluciones del Ministerio de Energía, ARCERNNR, ARCOM y veedurías del CPCCS para reconstruir cuadro completo.</div>
+        <div>
+          <span class="card-tag priority">minería</span>
+          <span class="card-tag priority">veedurías</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="http://www.camiloponce.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">camiloponce.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="conagopare azuay parroquial rural gobiernos">
+        <div class="card-head"><span class="card-acronym">CONAGOPARE-A</span><span class="card-id">AZ-10-017</span></div>
+        <h3>CONAGOPARE Azuay · Consejo de GAD Parroquiales Rurales del Azuay</h3>
+        <p class="card-desc">Articulación provincial de los GAD Parroquiales Rurales del Azuay (cuarto nivel de gobierno). Coordina con la Prefectura y los municipios la vialidad, mantenimiento de espacios públicos y proyectos productivos rurales. Publica noticias, convenios y articulaciones con la Prefectura.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Acceso al nivel parroquial rural completo del Azuay. Útil para verificar reportes de gestión vial rural (competencia compartida entre Prefectura y parroquiales) y articulación de género.</div>
+        <div>
+          <span class="card-tag">parroquial</span>
+          <span class="card-tag">vialidad rural</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://conagopareazuay.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">conagopareazuay.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="azuay" data-keywords="gobernacion azuay representante ejecutivo presidente">
+        <div class="card-head"><span class="card-acronym">GOB-AZ</span><span class="card-id">AZ-10-018</span></div>
+        <h3>Gobernación del Azuay</h3>
+        <p class="card-desc">Representación territorial del Ejecutivo nacional en la provincia (no es un GAD). Coordina la presencia de ministerios, fuerza pública y políticas nacionales en el territorio azuayo. Publica operativos de control, seguridad ciudadana y planes de contingencia.</p>
+        <div class="card-osint-title">// utilidad OSINT</div>
+        <div class="card-osint">Pieza para entender la presencia del Ejecutivo nacional en la provincia y contrastar narrativas de seguridad, controles y operativos. Útil para diferenciar competencias del GAD (gestión local) frente al Ejecutivo desconcentrado.</div>
+        <div>
+          <span class="card-tag">seguridad</span>
+          <span class="card-tag">ejecutivo</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://gobazuay.gob.ec" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">gobazuay.gob.ec</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 11: HERRAMIENTAS OSINT INTERNACIONALES PARA OBJETIVOS ECUATORIANOS -->
+  <section class="section" id="sec-internacional" data-section="internacional">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-id"><span>SEC · 11</span><span class="section-id-line"></span><span>OSINT GLOBAL</span></div>
+        <h2>Herramientas OSINT Internacionales · Buscadores aplicados al Ecuador</h2>
+        <p class="section-desc">Arsenal global para investigar personas, instituciones, dominios, correos electrónicos, infraestructura, imágenes, sociedades offshore, filtraciones, embarcaciones, aeronaves y movimientos cripto vinculados al Ecuador. Las fuentes oficiales del Estado son el ancla probatoria; estas herramientas son el bisturí para reconstruir lo que ocurre fuera de los portales oficiales o lo que actores políticos prefieren ocultar. <strong style="color:var(--text-primary)">Uso ético obligatorio</strong>: investigaciones legítimas, periodismo, ciberseguridad, debida diligencia, búsqueda del propio rastro digital. Toda consulta debe respetar la Ley Orgánica de Protección de Datos Personales (LOPDP).</p>
+      </div>
+      <span class="section-flag med">HERRAMIENTAS · USO ÉTICO</span>
+    </div>
+    <div class="cards" data-grid>
+
+      <!-- A. METAFRAMEWORKS -->
+      <div class="subgroup-header">
+        <span class="subgroup-id">A · METAFRAMEWORKS</span>
+        <span class="subgroup-title">Directorios de herramientas</span>
+        <span class="subgroup-desc">Empieza aquí. Catálogos curados de cientos de herramientas OSINT organizadas por objetivo de investigación.</span>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="osint framework directorio herramientas justin nordine metaframework">
+        <div class="card-head"><span class="card-acronym">OSINTFW</span><span class="card-id">INT-11-001</span></div>
+        <span class="card-purpose">Metaframework</span>
+        <h3>OSINT Framework</h3>
+        <p class="card-desc">Árbol de decisión visual desarrollado por Justin Nordine que organiza cientos de recursos OSINT clasificados por tipo de dato a investigar (username, email, IP, dominio, persona, vehículo, etc.). Es el punto de partida estándar en la comunidad OSINT.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Mapa lógico para decidir el siguiente paso cuando se investiga un objetivo ecuatoriano. Útil para principiantes y como referencia rápida en investigaciones en curso.</div>
+        <div>
+          <span class="card-tag">directorio</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://osintframework.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">osintframework.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="inteltechniques michael bazzell osint search tools">
+        <div class="card-head"><span class="card-acronym">IT</span><span class="card-id">INT-11-002</span></div>
+        <span class="card-purpose">Metaframework</span>
+        <h3>IntelTechniques · Michael Bazzell</h3>
+        <p class="card-desc">Conjunto de herramientas OSINT curadas por el investigador privado Michael Bazzell. Incluye buscadores embebidos para email, username, nombre real, teléfono, dirección IP, dominio, redes sociales y registros públicos, todos en una sola interfaz.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Excelente para investigación de personas con presencia digital activa, especialmente migrantes ecuatorianos en EE.UU. y figuras públicas con cuentas internacionales.</div>
+        <div>
+          <span class="card-tag">buscador integrado</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://inteltechniques.com/tools/" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">inteltechniques.com/tools</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="bellingcat toolkit investigacion abierta">
+        <div class="card-head"><span class="card-acronym">BC-TK</span><span class="card-id">INT-11-003</span></div>
+        <h3>Bellingcat's Online Investigation Toolkit</h3>
+        <span class="card-purpose">Metaframework</span>
+        <p class="card-desc">Toolkit colaborativo de Bellingcat mantenido por la comunidad de investigación abierta. Catalogado por categorías: mapas y satélites, imágenes/video, empresas y finanzas, transporte, redes sociales, archivos. Incluye guías de uso paso a paso para cada herramienta listada.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">El estándar de oro en periodismo OSINT. Sus guías están en inglés pero el método aplica universalmente. Las categorías "Companies & Finance" y "Transport" son particularmente útiles para investigaciones ecuatorianas.</div>
+        <div>
+          <span class="card-tag priority">guías</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://bellingcat.gitbook.io/toolkit" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">bellingcat.gitbook.io/toolkit</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="osint combine herramientas gratuitas freelance">
+        <div class="card-head"><span class="card-acronym">OSC</span><span class="card-id">INT-11-004</span></div>
+        <span class="card-purpose">Metaframework</span>
+        <h3>OSINT Combine · Free Tools</h3>
+        <p class="card-desc">Colección de utilidades web gratuitas: búsquedas de usernames, geo-búsquedas en redes sociales, listas de marcadores curadas por país, recursos para verificación de hechos y análisis de inteligencia.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Útil cuando se necesita una herramienta puntual sin instalar nada. Sus listas curadas incluyen recursos específicos por país.</div>
+        <div>
+          <span class="card-tag">web tools</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.osintcombine.com/tools" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">osintcombine.com/tools</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- B. PERSONAS, USUARIOS Y ROSTROS -->
+      <div class="subgroup-header">
+        <span class="subgroup-id">B · PERSONAS · USUARIOS · ROSTROS</span>
+        <span class="subgroup-title">Identidad digital</span>
+        <span class="subgroup-desc">Encontrar cuentas, perfiles y presencia online a partir de un alias, nombre o rostro. Las personas reutilizan handles durante años; un username único es una huella valiosa.</span>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="sherlock username buscador alias redes sociales github">
+        <div class="card-head"><span class="card-acronym">SHRLK</span><span class="card-id">INT-11-005</span></div>
+        <span class="card-purpose">Username</span>
+        <h3>Sherlock</h3>
+        <p class="card-desc">Herramienta open-source en Python que rastrea la existencia de un username en más de 400 plataformas sociales (Twitter/X, Instagram, Reddit, GitHub, foros, plataformas de gaming, etc.). Instalación: <code style="font-family:var(--mono); font-size:0.85em; color:var(--accent)">pipx install sherlock-project</code></p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Punto de partida para perfilar a un actor político, periodista, funcionario o usuario que difunde desinformación. Permite identificar todas las plataformas donde tiene presencia el mismo handle.</div>
+        <div>
+          <span class="card-tag priority">CLI</span>
+          <span class="card-tag">400+ sitios</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://github.com/sherlock-project/sherlock" target="_blank" rel="noopener"><span class="card-link-label">GitHub</span><span class="card-link-url">github.com/sherlock-project/sherlock</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://sherlockosint.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">sherlockosint.com (versión navegador)</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="maigret username perfil pii recursivo soxoj">
+        <div class="card-head"><span class="card-acronym">MAIG</span><span class="card-id">INT-11-006</span></div>
+        <span class="card-purpose">Username</span>
+        <h3>Maigret</h3>
+        <p class="card-desc">Sucesor avanzado de Sherlock con más de 3.100 sitios soportados, parsing de perfiles para extraer PII (nombre, correo, enlaces), búsqueda recursiva sobre nuevos usernames encontrados y filtros por país. Detecta censura y captchas. Instalación: <code style="font-family:var(--mono); font-size:0.85em; color:var(--accent)">pip install maigret</code></p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">La herramienta más potente de namechecking en 2026. Su filtro por país y baja tasa de falsos positivos lo hacen ideal para investigaciones serias.</div>
+        <div>
+          <span class="card-tag priority">3100+ sitios</span>
+          <span class="card-tag">PII parsing</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://github.com/soxoj/maigret" target="_blank" rel="noopener"><span class="card-link-label">GitHub</span><span class="card-link-url">github.com/soxoj/maigret</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="whatsmyname username web navegador comunidad">
+        <div class="card-head"><span class="card-acronym">WMN</span><span class="card-id">INT-11-007</span></div>
+        <span class="card-purpose">Username</span>
+        <h3>WhatsMyName</h3>
+        <p class="card-desc">Versión web de uso inmediato (sin instalación) que verifica la existencia de un username en cientos de plataformas mantenidas por la comunidad. Permite descargar resultados en JSON/CSV.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Alternativa rápida cuando no se puede instalar software. Ideal para periodistas y analistas que necesitan resultados al instante desde el navegador.</div>
+        <div>
+          <span class="card-tag">web</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://whatsmyname.app" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">whatsmyname.app</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="namechk username disponibilidad marca branding">
+        <div class="card-head"><span class="card-acronym">NCHK</span><span class="card-id">INT-11-008</span></div>
+        <span class="card-purpose">Username</span>
+        <h3>Namechk</h3>
+        <p class="card-desc">Verifica disponibilidad/uso de un username y dominio en plataformas principales y registradores. Útil para detectar perfiles que se hacen pasar por marcas o personas reales (typosquatting de identidad).</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Detección de cuentas suplantadoras: en periodos electorales aparecen perfiles que imitan candidatos o instituciones. Namechk permite verificar quién usa el handle real vs. quién intenta imitarlo.</div>
+        <div>
+          <span class="card-tag">suplantación</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://namechk.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">namechk.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="pimeyes facial reconocimiento rostros foto reverse">
+        <div class="card-head"><span class="card-acronym">PIM</span><span class="card-id">INT-11-009</span></div>
+        <span class="card-purpose">Rostro</span>
+        <h3>PimEyes</h3>
+        <p class="card-desc">Motor de búsqueda inversa por reconocimiento facial. Cargando una imagen de un rostro, identifica otras apariciones de esa misma persona en la web pública. <strong style="color:var(--warning)">Usar exclusivamente para</strong>: verificar el propio rastro digital, casos de personas desaparecidas, verificación de identidad de figuras públicas en periodismo legítimo.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Herramienta de doble filo. En periodismo de investigación sirve para verificar si una foto atribuida a un actor político es realmente suya. Su uso sobre civiles privados sin justificación legítima puede vulnerar la LOPDP ecuatoriana.</div>
+        <div>
+          <span class="card-tag priority">ética crítica</span>
+          <span class="card-tag">freemium</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://pimeyes.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">pimeyes.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- C. EMAIL -->
+      <div class="subgroup-header">
+        <span class="subgroup-id">C · CORREO ELECTRÓNICO Y CUENTAS GOOGLE</span>
+        <span class="subgroup-title">Investigación de emails</span>
+        <span class="subgroup-desc">Un correo electrónico es una llave que abre múltiples puertas: identifica perfiles vinculados, exposiciones en brechas de datos y, en el caso de Gmail, metadatos del propietario.</span>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="hunter.io email dominio empresa patrones direcciones">
+        <div class="card-head"><span class="card-acronym">HUNT</span><span class="card-id">INT-11-010</span></div>
+        <span class="card-purpose">Email</span>
+        <h3>Hunter.io</h3>
+        <p class="card-desc">Encuentra direcciones de correo electrónico asociadas a un dominio corporativo, descubre el patrón de email de una organización (ej: nombre.apellido@empresa.com) e indica el grado de confianza de cada dirección.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Para mapear el organigrama de contactos de cualquier empresa o institución ecuatoriana con dominio propio. Útil para identificar funcionarios públicos de mando medio cuyos correos no están publicados en LOTAIP.</div>
+        <div>
+          <span class="card-tag">empresas</span>
+          <span class="card-tag">freemium</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://hunter.io" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">hunter.io</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="epieos email phone osint sylvain hajri francia">
+        <div class="card-head"><span class="card-acronym">EPI</span><span class="card-id">INT-11-011</span></div>
+        <span class="card-purpose">Email</span>
+        <h3>Epieos</h3>
+        <p class="card-desc">Búsqueda OSINT por email o teléfono que devuelve cuentas asociadas (Google, redes sociales, Adobe, Etsy, Strava, Fitbit, Trello, Flickr y muchas más), nombre del titular cuando está expuesto, y cruces con brechas de datos vía Have I Been Pwned.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Una de las herramientas más rentables para pivotar desde un correo a una identidad completa. La búsqueda por teléfono también funciona con números ecuatorianos (+593).</div>
+        <div>
+          <span class="card-tag priority">pivot</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://epieos.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">epieos.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="have i been pwned hibp troy hunt brechas datos email">
+        <div class="card-head"><span class="card-acronym">HIBP</span><span class="card-id">INT-11-012</span></div>
+        <span class="card-purpose">Brechas</span>
+        <h3>Have I Been Pwned</h3>
+        <p class="card-desc">Creado por Troy Hunt, es el estándar para verificar si un email o número de teléfono ha aparecido en brechas de datos públicas. Lista qué servicios filtraron la información (LinkedIn, Adobe, Dropbox, etc.) sin revelar contraseñas.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Más allá de la ciberseguridad personal, HIBP revela en qué plataformas tuvo cuenta un objetivo, incluyendo aquellas cuyo perfil hoy está oculto. Indicio indirecto de presencia online incluso si la cuenta ya no existe visiblemente.</div>
+        <div>
+          <span class="card-tag">brechas</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://haveibeenpwned.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">haveibeenpwned.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="ghunt google gmail email osint metadata">
+        <div class="card-head"><span class="card-acronym">GHUNT</span><span class="card-id">INT-11-013</span></div>
+        <span class="card-purpose">Email</span>
+        <h3>GHunt</h3>
+        <p class="card-desc">Herramienta especializada en investigación de cuentas Google a partir de una dirección Gmail. Devuelve el ID de Google, fotos de perfil públicas, reseñas de Maps, fotos subidas a Maps, eventos públicos en Calendar y documentos compartidos.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Gmail es el correo dominante en Ecuador. Una cuenta Gmail descuidada con reseñas o fotos públicas en Maps puede revelar geolocalizaciones, lugares frecuentados y patrones de movimiento del titular.</div>
+        <div>
+          <span class="card-tag">Gmail</span>
+          <span class="card-tag">CLI</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://github.com/mxrch/GHunt" target="_blank" rel="noopener"><span class="card-link-label">GitHub</span><span class="card-link-url">github.com/mxrch/GHunt</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="emailrep reputacion riesgo email score">
+        <div class="card-head"><span class="card-acronym">EMR</span><span class="card-id">INT-11-014</span></div>
+        <span class="card-purpose">Email</span>
+        <h3>EmailRep</h3>
+        <p class="card-desc">Servicio gratuito de reputación de email. Devuelve señales de riesgo (sospechoso, dominio desechable, asociaciones con fraude), perfiles sociales detectados, antigüedad del dominio y exposición a brechas.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Complemento rápido a HIBP y Epieos. Permite descartar fácilmente correos efímeros usados por trolls o granjas de bots en redes sociales locales.</div>
+        <div>
+          <span class="card-tag">reputación</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://emailrep.io" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">emailrep.io</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- D. TELÉFONO -->
+      <div class="subgroup-header">
+        <span class="subgroup-id">D · NÚMEROS TELEFÓNICOS</span>
+        <span class="subgroup-title">Investigación de teléfonos</span>
+        <span class="subgroup-desc">A partir de un número (Ecuador: +593) se puede determinar operadora, tipo de línea, asociaciones con cuentas digitales y eventuales filtraciones.</span>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="phoneinfoga telefono operadora gsm investigacion">
+        <div class="card-head"><span class="card-acronym">PINFO</span><span class="card-id">INT-11-015</span></div>
+        <span class="card-purpose">Teléfono</span>
+        <h3>PhoneInfoga</h3>
+        <p class="card-desc">Framework OSINT especializado en números telefónicos. Detecta operadora, tipo de línea (móvil/fija/VoIP), país, ciudad, y permite escaneo en motores de búsqueda para descubrir el número en sitios públicos. Instalación CLI o vía Docker.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Reconoce los rangos de Claro, Movistar y CNT en Ecuador. Sus dorks de búsqueda pueden encontrar el teléfono publicado en sitios oficiales de empresas, anuncios o redes sociales.</div>
+        <div>
+          <span class="card-tag">CLI</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://github.com/sundowndev/phoneinfoga" target="_blank" rel="noopener"><span class="card-link-label">GitHub</span><span class="card-link-url">github.com/sundowndev/phoneinfoga</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- E. DOMINIOS E INFRAESTRUCTURA -->
+      <div class="subgroup-header">
+        <span class="subgroup-id">E · DOMINIOS · DNS · INFRAESTRUCTURA</span>
+        <span class="subgroup-title">Investigación de infraestructura</span>
+        <span class="subgroup-desc">Análisis de dominios .ec, .gob.ec, .com.ec y servidores asociados. Permite descubrir subdominios olvidados, registrar histórico de cambios y mapear superficie de exposición.</span>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="whois domaintools dominio registrante propietario">
+        <div class="card-head"><span class="card-acronym">WHOIS</span><span class="card-id">INT-11-016</span></div>
+        <span class="card-purpose">Dominio</span>
+        <h3>DomainTools Whois Lookup</h3>
+        <p class="card-desc">Consulta WHOIS clásica: revela el registrante, fecha de creación, fecha de expiración, registrador y servidores de nombres de cualquier dominio público. Para dominios .ec la información del titular está parcialmente protegida pero los metadatos del registro son visibles.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Fundamental para detectar dominios apócrifos que imitan instituciones ecuatorianas y para confirmar autenticidad de portales que se presentan como oficiales. La fecha de creación reciente es señal de alerta inmediata.</div>
+        <div>
+          <span class="card-tag">WHOIS</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://whois.domaintools.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">whois.domaintools.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="dnsdumpster reconocimiento subdominios mx records">
+        <div class="card-head"><span class="card-acronym">DNSD</span><span class="card-id">INT-11-017</span></div>
+        <span class="card-purpose">DNS</span>
+        <h3>DNSDumpster</h3>
+        <p class="card-desc">Herramienta gratuita de reconocimiento DNS que descubre subdominios, registros MX, hosts asociados, distribución por IP y muestra un mapa visual de la infraestructura digital de un dominio.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Útil para mapear la "huella digital" completa de instituciones ecuatorianas: subdominios olvidados, portales de pruebas expuestos, servicios mal configurados que podrían filtrar información.</div>
+        <div>
+          <span class="card-tag">subdominios</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://dnsdumpster.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">dnsdumpster.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="securitytrails dns historico passive subdominios">
+        <div class="card-head"><span class="card-acronym">ST</span><span class="card-id">INT-11-018</span></div>
+        <span class="card-purpose">DNS histórico</span>
+        <h3>SecurityTrails</h3>
+        <p class="card-desc">Base de datos DNS histórica más amplia disponible. Permite ver el histórico de cambios en registros DNS, propietarios anteriores de un dominio, dominios alojados en una misma IP y subdominios descubiertos pasivamente.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Cuando una institución migra de proveedor o cambia administrador, el cambio queda registrado aquí. Útil para confirmar trazabilidad técnica de cambios institucionales.</div>
+        <div>
+          <span class="card-tag">histórico DNS</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://securitytrails.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">securitytrails.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="shodan iot dispositivos expuestos puertos servicios">
+        <div class="card-head"><span class="card-acronym">SHDN</span><span class="card-id">INT-11-019</span></div>
+        <span class="card-purpose">Infraestructura</span>
+        <h3>Shodan</h3>
+        <p class="card-desc">Motor de búsqueda de dispositivos conectados a internet. A diferencia de Google, indexa puertos abiertos, servicios expuestos, banners de versiones de software, cámaras IP, sistemas SCADA y todo dispositivo IoT. Permite filtrar por país (<code style="font-family:var(--mono); color:var(--accent)">country:EC</code>).</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Permite identificar la postura defensiva real de una institución pública o empresa privada ecuatoriana. La consulta <code style="font-family:var(--mono); color:var(--accent)">country:EC org:"institución"</code> revela qué expone públicamente al internet.</div>
+        <div>
+          <span class="card-tag priority">ciberseguridad</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.shodan.io" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">shodan.io</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="censys certificados ssl tls hosts cloud shadow it">
+        <div class="card-head"><span class="card-acronym">CNS</span><span class="card-id">INT-11-020</span></div>
+        <span class="card-purpose">Infraestructura</span>
+        <h3>Censys</h3>
+        <p class="card-desc">Similar a Shodan pero con énfasis especial en certificados SSL/TLS y activos en la nube. Indispensable para detectar "shadow IT" — servidores que el departamento de TI oficial no monitorea pero que existen y exponen servicios.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Complementa Shodan. Sus búsquedas por certificado revelan vínculos invisibles entre dominios y subdominios que comparten un mismo certificado SSL.</div>
+        <div>
+          <span class="card-tag">certificados</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://search.censys.io" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">search.censys.io</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="crtsh certificate transparency log subdominios">
+        <div class="card-head"><span class="card-acronym">CRT</span><span class="card-id">INT-11-021</span></div>
+        <span class="card-purpose">Certificados</span>
+        <h3>crt.sh · Certificate Transparency Search</h3>
+        <p class="card-desc">Buscador del registro público de Certificate Transparency. Cada vez que una organización emite un certificado SSL/TLS, queda registrado aquí. Permite enumerar subdominios incluso los no publicados, simplemente porque alguien emitió un certificado para ellos.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Consultar <code style="font-family:var(--mono); color:var(--accent)">%.gob.ec</code> revela todos los subdominios con certificados emitidos para entidades del Estado ecuatoriano. Técnica esencial de reconocimiento pasivo.</div>
+        <div>
+          <span class="card-tag priority">subdominios</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://crt.sh" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">crt.sh</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- F. EMPRESAS, OFFSHORE Y SANCIONES -->
+      <div class="subgroup-header">
+        <span class="subgroup-id">F · EMPRESAS · OFFSHORE · SANCIONES</span>
+        <span class="subgroup-title">Inteligencia corporativa global</span>
+        <span class="subgroup-desc">Cuando la Superintendencia de Compañías ecuatoriana se queda corta porque la estructura societaria es transfronteriza, estas bases internacionales completan el panorama.</span>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="icij offshore leaks panama papers pandora pandoras">
+        <div class="card-head"><span class="card-acronym">ICIJ</span><span class="card-id">INT-11-022</span></div>
+        <span class="card-purpose">Offshore</span>
+        <h3>ICIJ Offshore Leaks Database</h3>
+        <p class="card-desc">Base de datos consolidada del Consorcio Internacional de Periodistas de Investigación que reúne los Panama Papers, Paradise Papers, Pandora Papers, Bahamas Leaks y Offshore Leaks. Más de 810.000 entidades offshore consultables. Datos descargables en CSV y Neo4j.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Decenas de figuras políticas y empresariales ecuatorianas aparecen en estos archivos. Búsqueda por nombre o cédula transliterada puede revelar sociedades offshore vinculadas a actores del país.</div>
+        <div>
+          <span class="card-tag priority">offshore</span>
+          <span class="card-tag">CSV</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://offshoreleaks.icij.org" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">offshoreleaks.icij.org</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="opensanctions sanciones pep ofac eu listas">
+        <div class="card-head"><span class="card-acronym">OS</span><span class="card-id">INT-11-023</span></div>
+        <span class="card-purpose">Sanciones</span>
+        <h3>OpenSanctions</h3>
+        <p class="card-desc">Base de datos internacional consolidada de listas de sanciones (OFAC, UE, ONU, Reino Unido, etc.), Personas Expuestas Políticamente (PEPs) y bases de criminalidad. Permite verificar si una persona o entidad está sancionada en alguna jurisdicción.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Verificación obligatoria en debida diligencia: confirma si un contratista del Estado, candidato político o accionista está incluido en alguna lista internacional de sanciones. Crítico para periodismo financiero.</div>
+        <div>
+          <span class="card-tag priority">PEP</span>
+          <span class="card-tag">OFAC</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.opensanctions.org" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">opensanctions.org</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="openownership beneficiarios finales transparencia">
+        <div class="card-head"><span class="card-acronym">OO</span><span class="card-id">INT-11-024</span></div>
+        <span class="card-purpose">Empresas</span>
+        <h3>OpenOwnership</h3>
+        <p class="card-desc">Registro internacional de beneficiarios finales de empresas. Permite identificar quién es realmente el dueño último de una sociedad, atravesando las capas de sociedades intermedias usadas habitualmente para opacar la propiedad.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Cuando una empresa ecuatoriana es propiedad de otra empresa extranjera, OpenOwnership permite seguir la cadena hasta la persona natural beneficiaria.</div>
+        <div>
+          <span class="card-tag">beneficiarios</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.openownership.org" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">openownership.org</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="littlesis poder politica empresas conexiones eeuu">
+        <div class="card-head"><span class="card-acronym">LS</span><span class="card-id">INT-11-025</span></div>
+        <span class="card-purpose">Conexiones</span>
+        <h3>LittleSis</h3>
+        <p class="card-desc">Base de datos que conecta individuos influyentes con organizaciones del sector público y privado, principalmente en Estados Unidos. Incluye donaciones políticas, membresías en juntas directivas, conexiones familiares y holdings.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Útil para rastrear conexiones de actores ecuatorianos con organizaciones, lobbies o donantes en EE.UU., una pista frecuente en investigaciones de financiamiento político internacional.</div>
+        <div>
+          <span class="card-tag">EE.UU.</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://littlesis.org" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">littlesis.org</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- G. IMÁGENES Y VERIFICACIÓN -->
+      <div class="subgroup-header">
+        <span class="subgroup-id">G · IMÁGENES · VIDEO · VERIFICACIÓN</span>
+        <span class="subgroup-title">Análisis forense visual</span>
+        <span class="subgroup-desc">La desinformación visual es la más viral. Estas herramientas permiten determinar si una imagen es original, dónde y cuándo se tomó, si fue manipulada, y dónde más ha aparecido en internet.</span>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="tineye reverse image busqueda inversa imagenes">
+        <div class="card-head"><span class="card-acronym">TIN</span><span class="card-id">INT-11-026</span></div>
+        <span class="card-purpose">Imagen</span>
+        <h3>TinEye</h3>
+        <p class="card-desc">Motor de búsqueda inversa de imágenes especializado en encontrar la fuente original y todas las apariciones públicas de una imagen, incluyendo versiones editadas o recortadas.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Cuando una imagen viral aparece atribuida a un evento en Ecuador, TinEye permite verificar rápidamente si la foto es realmente de ese evento o fue tomada en otro contexto y reutilizada engañosamente.</div>
+        <div>
+          <span class="card-tag priority">verificación</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://tineye.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">tineye.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="yandex images reverse rostros mejor buscador">
+        <div class="card-head"><span class="card-acronym">YDX</span><span class="card-id">INT-11-027</span></div>
+        <span class="card-purpose">Imagen</span>
+        <h3>Yandex Images</h3>
+        <p class="card-desc">Buscador inverso de imágenes del motor ruso Yandex. Reconocido por la comunidad OSINT como el más potente para reconocimiento facial y de objetos en fotos no occidentales, frecuentemente superior a Google Images.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Recurso clave cuando Google y TinEye no devuelven resultados. Particularmente efectivo para fotos de personas y para identificar paisajes o lugares específicos en imágenes.</div>
+        <div>
+          <span class="card-tag priority">rostros</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://yandex.com/images/" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">yandex.com/images</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="google lens reverse image traduccion identificacion">
+        <div class="card-head"><span class="card-acronym">GL</span><span class="card-id">INT-11-028</span></div>
+        <span class="card-purpose">Imagen</span>
+        <h3>Google Lens · Reverse Image Search</h3>
+        <p class="card-desc">Buscador inverso de Google con capacidad de identificar objetos, lugares, textos y rostros públicos dentro de la imagen. Excelente complemento de TinEye y Yandex porque indexa fuentes distintas.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Siempre úsalo en combinación con TinEye y Yandex. Las tres herramientas dan resultados diferentes; ninguna es completa por sí sola.</div>
+        <div>
+          <span class="card-tag">verificación</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://lens.google" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">lens.google</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://images.google.com" target="_blank" rel="noopener"><span class="card-link-label">Reverse</span><span class="card-link-url">images.google.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="fotoforensics ela manipulation analisis error level">
+        <div class="card-head"><span class="card-acronym">FF</span><span class="card-id">INT-11-029</span></div>
+        <span class="card-purpose">Forense</span>
+        <h3>FotoForensics</h3>
+        <p class="card-desc">Análisis forense de imágenes vía Error Level Analysis (ELA), metadatos EXIF y otros marcadores técnicos. Permite detectar zonas manipuladas, clonadas o añadidas digitalmente a una fotografía.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Análisis técnico de imágenes que pretendan probar afirmaciones políticas. La presencia de zonas con ELA discrepante es indicio fuerte de manipulación digital posterior.</div>
+        <div>
+          <span class="card-tag priority">manipulación</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://fotoforensics.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">fotoforensics.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="invid weverify video verificacion fragmento metadatos">
+        <div class="card-head"><span class="card-acronym">INVID</span><span class="card-id">INT-11-030</span></div>
+        <span class="card-purpose">Video</span>
+        <h3>InVID-WeVerify</h3>
+        <p class="card-desc">Extensión de navegador y herramienta web especializada en verificación de video. Permite fragmentar videos en keyframes, hacer búsqueda inversa de cada frame, leer metadatos y detectar manipulación visual.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Esencial cuando se difunde un video viral atribuido a un hecho político en Ecuador. Su fragmentación por keyframes permite verificar mediante búsqueda inversa si el video corresponde a la fecha y lugar afirmados.</div>
+        <div>
+          <span class="card-tag priority">video</span>
+          <span class="card-tag">extensión</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.invid-project.eu/tools-and-services/invid-verification-plugin/" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">invid-project.eu/tools-and-services</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- H. GEOESPACIAL Y MAPAS -->
+      <div class="subgroup-header">
+        <span class="subgroup-id">H · GEOESPACIAL · SATÉLITE · MAPAS</span>
+        <span class="subgroup-title">Verificación de ubicaciones y tiempos</span>
+        <span class="subgroup-desc">Confirmar dónde y cuándo ocurrió un hecho mediante satélite, sombras, redes WiFi y mapas colaborativos.</span>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="google earth pro satelite historico imagenes">
+        <div class="card-head"><span class="card-acronym">GEP</span><span class="card-id">INT-11-031</span></div>
+        <span class="card-purpose">Satélite</span>
+        <h3>Google Earth Pro</h3>
+        <p class="card-desc">Cliente de escritorio gratuito con acceso a imágenes satelitales históricas multianuales. Permite ver cómo ha cambiado un territorio en el tiempo, comparar imágenes, medir distancias y exportar capturas con coordenadas precisas.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Verificación de obras públicas afirmadas: ¿realmente se construyó la vía o el coliseo en la fecha que se declaró? Comparar imágenes antes y después con fechas certificadas por Google es prueba documental sólida.</div>
+        <div>
+          <span class="card-tag priority">histórico</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://earth.google.com/web/" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">earth.google.com/web</span><span class="card-link-arrow">→</span></a>
+          <a class="card-link" href="https://www.google.com/earth/about/versions/" target="_blank" rel="noopener"><span class="card-link-label">Pro</span><span class="card-link-url">google.com/earth/about/versions</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="suncalc sol sombras hora fecha geolocalizacion cronolocacion">
+        <div class="card-head"><span class="card-acronym">SUN</span><span class="card-id">INT-11-032</span></div>
+        <span class="card-purpose">Cronolocación</span>
+        <h3>SunCalc</h3>
+        <p class="card-desc">Calculadora interactiva de posición solar. Dada una ubicación y fecha, indica la dirección y elevación del sol a cada hora del día. Inversamente, dada una sombra en una foto, permite estimar fecha u hora aproximada.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Técnica clásica de cronolocación: verificar si la sombra en una foto pública es coherente con la fecha y hora declaradas. Inconsistencias revelan recontextualización o manipulación.</div>
+        <div>
+          <span class="card-tag">cronolocación</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.suncalc.org" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">suncalc.org</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="wigle wifi geolocalizacion redes inalambricas mapas">
+        <div class="card-head"><span class="card-acronym">WGL</span><span class="card-id">INT-11-033</span></div>
+        <span class="card-purpose">WiFi geo</span>
+        <h3>Wigle.net</h3>
+        <p class="card-desc">Base de datos colaborativa global de redes WiFi y antenas celulares con su geolocalización. Cubre también territorio ecuatoriano. Permite buscar por SSID, BSSID o ubicación.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Una red WiFi mencionada en una foto, una captura o un dispositivo abandonado puede geolocalizarse aquí. Indicio útil para confirmar presencia física en una ubicación específica.</div>
+        <div>
+          <span class="card-tag">WiFi</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://wigle.net" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">wigle.net</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="sentinel hub copernicus satelite gratuito europeo">
+        <div class="card-head"><span class="card-acronym">SH</span><span class="card-id">INT-11-034</span></div>
+        <span class="card-purpose">Satélite</span>
+        <h3>Sentinel Hub EO Browser</h3>
+        <p class="card-desc">Interfaz gratuita a las imágenes satelitales del programa Copernicus de la ESA (Sentinel-1, Sentinel-2). Imágenes ópticas y radar con revisita frecuente, ideal para monitoreo casi en tiempo real de territorios.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Excelente para monitorear actividad minera ilegal (Camilo Ponce Enríquez, Pucará), deforestación, derrames petroleros en la Amazonía y avance de obras de infraestructura. Sentinel-1 (radar) atraviesa nubes — útil en zonas costa y sierra.</div>
+        <div>
+          <span class="card-tag priority">minería</span>
+          <span class="card-tag">Amazonía</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://apps.sentinel-hub.com/eo-browser/" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">apps.sentinel-hub.com/eo-browser</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- I. FILTRACIONES Y BRECHAS -->
+      <div class="subgroup-header">
+        <span class="subgroup-id">I · FILTRACIONES · BRECHAS · STEALER LOGS</span>
+        <span class="subgroup-title">Inteligencia de exposición</span>
+        <span class="subgroup-desc">Cuando la información ya está expuesta en internet por brechas o filtraciones, estas plataformas la consolidan e indexan para investigación.</span>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="intelligence intelx intelx.io leaks pastes darknet">
+        <div class="card-head"><span class="card-acronym">IX</span><span class="card-id">INT-11-035</span></div>
+        <span class="card-purpose">Filtraciones</span>
+        <h3>Intelligence X</h3>
+        <p class="card-desc">Motor de búsqueda especializado en datos filtrados, pastes públicos, contenido de la darknet, leaks y documentos no indexados por buscadores convencionales. Indexa por email, dominio, IP, teléfono, dirección Bitcoin y más.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Cuando hay sospecha de filtración de datos de una institución ecuatoriana, IntelX puede revelar dónde apareció el documento. Búsquedas por dominio <code style="font-family:var(--mono); color:var(--accent)">@gob.ec</code> son particularmente reveladoras.</div>
+        <div>
+          <span class="card-tag priority">leaks</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://intelx.io" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">intelx.io</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="dehashed brechas credenciales passwords compromised">
+        <div class="card-head"><span class="card-acronym">DH</span><span class="card-id">INT-11-036</span></div>
+        <span class="card-purpose">Filtraciones</span>
+        <h3>DeHashed</h3>
+        <p class="card-desc">Motor de búsqueda sobre miles de millones de credenciales filtradas, complementario a HIBP. A diferencia de éste, muestra el contenido específico expuesto (usernames, contraseñas históricas en hash, números de teléfono, direcciones físicas).</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Servicio de pago. Útil para investigación forense corporativa cuando se sospecha que credenciales internas están comprometidas y se necesita documentar el alcance.</div>
+        <div>
+          <span class="card-tag">pago</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://dehashed.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">dehashed.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="ddosecrets distributed denial secrets leaks transparencia">
+        <div class="card-head"><span class="card-acronym">DDoS</span><span class="card-id">INT-11-037</span></div>
+        <span class="card-purpose">Filtraciones</span>
+        <h3>Distributed Denial of Secrets</h3>
+        <p class="card-desc">Organización sin fines de lucro que cura y publica filtraciones de interés público (con criterios éticos definidos). Es el archivo actual más relevante después del declive de WikiLeaks, ampliamente usado por periodismo de investigación internacional.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Cuando ocurre una filtración masiva relacionada con Ecuador (gobierno, fuerzas armadas, partidos políticos), suele aparecer aquí curada y documentada. Acceso restringido a periodistas e investigadores acreditados.</div>
+        <div>
+          <span class="card-tag">archivos</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://ddosecrets.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">ddosecrets.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- J. ARCHIVOS WEB Y CACHÉ -->
+      <div class="subgroup-header">
+        <span class="subgroup-id">J · ARCHIVOS WEB · PRESERVACIÓN</span>
+        <span class="subgroup-title">Memoria de la web</span>
+        <span class="subgroup-desc">Wayback Machine (incluido en sección Herramientas Complementarias) es la principal, pero conviene tener alternativas. Capturas de hoy son las únicas pruebas que sobreviven al rediseño de mañana.</span>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="archive today archive.ph captura web inmediata snapshot">
+        <div class="card-head"><span class="card-acronym">AR.PH</span><span class="card-id">INT-11-038</span></div>
+        <span class="card-purpose">Archivo</span>
+        <h3>Archive.today</h3>
+        <p class="card-desc">Servicio independiente de captura web que preserva páginas web bajo demanda. Más rápido que Wayback Machine para preservar URL específicas y mantiene capturas que Wayback a veces no logra archivar (sitios con bloqueos a robots.txt).</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Alternativa esencial cuando el portal de una institución bloquea a Wayback. Una vez capturado, se obtiene una URL permanente para citar la evidencia.</div>
+        <div>
+          <span class="card-tag priority">preservación</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://archive.ph" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">archive.ph</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- K. RASTREO MARÍTIMO, AÉREO Y TRANSPORTE -->
+      <div class="subgroup-header">
+        <span class="subgroup-id">K · TRANSPORTE · NAVÍOS · AERONAVES</span>
+        <span class="subgroup-title">Rastreo de movimientos físicos</span>
+        <span class="subgroup-desc">Buques pesqueros chinos, vuelos de funcionarios, aeronaves privadas. La trazabilidad pública del transporte global es uno de los activos OSINT más subestimados.</span>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="marine traffic ais buques rastreo galapagos pesca">
+        <div class="card-head"><span class="card-acronym">MT</span><span class="card-id">INT-11-039</span></div>
+        <span class="card-purpose">Marítimo</span>
+        <h3>MarineTraffic</h3>
+        <p class="card-desc">Sistema global de seguimiento marítimo en tiempo real basado en datos AIS (Automatic Identification System). Permite ver embarcaciones en navegación, su histórico de rutas, propietario y bandera.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Crítico para temas de soberanía marítima ecuatoriana: monitoreo de la flota pesquera china alrededor de Galápagos, rastreo de buques sospechosos en aguas territoriales y verificación de operativos navales declarados.</div>
+        <div>
+          <span class="card-tag priority">Galápagos</span>
+          <span class="card-tag">soberanía</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.marinetraffic.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">marinetraffic.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="flightradar24 aviacion vuelos tiempo real adsb">
+        <div class="card-head"><span class="card-acronym">FR24</span><span class="card-id">INT-11-040</span></div>
+        <span class="card-purpose">Aéreo</span>
+        <h3>Flightradar24</h3>
+        <p class="card-desc">Visualizador en tiempo real del tráfico aéreo global. Muestra cada vuelo con ruta, altitud, velocidad, modelo de aeronave, matrícula y propietario (cuando es accesible). Histórico de vuelos disponible.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Verificación de aeronaves oficiales y privadas que entran o salen del país. La matrícula HC- corresponde a Ecuador. Cuando se afirma que una autoridad viajó o no, FR24 frecuentemente lo confirma o desmiente.</div>
+        <div>
+          <span class="card-tag">vuelos</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.flightradar24.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">flightradar24.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="adsbexchange aviation gobierno militares sin filtrar">
+        <div class="card-head"><span class="card-acronym">ADSB</span><span class="card-id">INT-11-041</span></div>
+        <span class="card-purpose">Aéreo</span>
+        <h3>ADS-B Exchange</h3>
+        <p class="card-desc">Alternativa a Flightradar24 sin filtros: muestra también aeronaves militares, gubernamentales y aviones que el resto de plataformas oculta por convenios comerciales (incluyendo flotas privadas opacas).</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Indispensable cuando FR24 no muestra una aeronave de interés. Para periodismo de investigación sobre movimientos de aviones presidenciales, militares o privados.</div>
+        <div>
+          <span class="card-tag priority">sin filtros</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://globe.adsbexchange.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">globe.adsbexchange.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- L. CRIPTOMONEDAS Y BLOCKCHAIN -->
+      <div class="subgroup-header">
+        <span class="subgroup-id">L · CRIPTOMONEDAS · BLOCKCHAIN</span>
+        <span class="subgroup-title">Trazabilidad cripto</span>
+        <span class="subgroup-desc">Las transacciones en blockchain son públicas y permanentes. Cada billetera es un identificador rastreable.</span>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="blockchain explorer bitcoin direccion transacciones wallet">
+        <div class="card-head"><span class="card-acronym">BC.COM</span><span class="card-id">INT-11-042</span></div>
+        <span class="card-purpose">Bitcoin</span>
+        <h3>Blockchain.com Explorer</h3>
+        <p class="card-desc">Explorador clásico de la cadena Bitcoin (BTC). Permite buscar una dirección, ver todas sus transacciones entrantes y salientes, montos en USD históricos y conexiones con otras billeteras.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Para casos de extorsión, ransomware o secuestros con rescate en cripto que afecten a empresas o personas ecuatorianas. Toda transacción queda en cadena pública para siempre.</div>
+        <div>
+          <span class="card-tag">BTC</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.blockchain.com/explorer" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">blockchain.com/explorer</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="etherscan ethereum erc20 tokens nft transacciones">
+        <div class="card-head"><span class="card-acronym">ETH</span><span class="card-id">INT-11-043</span></div>
+        <span class="card-purpose">Ethereum</span>
+        <h3>Etherscan</h3>
+        <p class="card-desc">Explorador estándar de la cadena Ethereum (ETH, USDT/USDC en ERC-20, NFTs). Devuelve transacciones, contratos inteligentes, conexiones entre billeteras y etiquetas comunitarias para direcciones conocidas (exchanges, mezcladores, etc.).</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">USDT sobre Ethereum es la stablecoin más usada en operaciones financieras grises. Etherscan permite seguir el flujo desde la billetera origen hasta el exchange donde se convierte a dólares.</div>
+        <div>
+          <span class="card-tag">ERC-20</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://etherscan.io" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">etherscan.io</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- M. SOCIAL MEDIA Y TELEGRAM -->
+      <div class="subgroup-header">
+        <span class="subgroup-id">M · SOCIAL MEDIA · TELEGRAM</span>
+        <span class="subgroup-title">Inteligencia en redes sociales</span>
+        <span class="subgroup-desc">Búsqueda transversal en plataformas y herramientas especializadas para Telegram, que se ha vuelto canal frecuente de desinformación coordinada.</span>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="social searcher menciones marcas tiempo real redes">
+        <div class="card-head"><span class="card-acronym">SS</span><span class="card-id">INT-11-044</span></div>
+        <span class="card-purpose">Social</span>
+        <h3>Social Searcher</h3>
+        <p class="card-desc">Motor de búsqueda en tiempo real sobre redes sociales públicas. Devuelve menciones recientes de palabras clave, hashtags o usuarios en múltiples plataformas, con análisis básico de sentimiento.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Monitoreo en tiempo real de menciones a actores políticos, instituciones o eventos en Ecuador. Útil para detección temprana de campañas coordinadas de desinformación.</div>
+        <div>
+          <span class="card-tag">monitoreo</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://www.social-searcher.com" target="_blank" rel="noopener"><span class="card-link-label">Web</span><span class="card-link-url">social-searcher.com</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="card" data-cat="internacional" data-keywords="telepathy telegram canales archivo mensajes bellingcat">
+        <div class="card-head"><span class="card-acronym">TLPY</span><span class="card-id">INT-11-045</span></div>
+        <span class="card-purpose">Telegram</span>
+        <h3>Telepathy</h3>
+        <p class="card-desc">Toolkit OSINT especializado en Telegram. Permite archivar canales y grupos, listar miembros visibles, identificar usuarios por ID, analizar top-posters, mapear mensajes reenviados y detectar restricciones aplicadas a un canal.</p>
+        <div class="card-osint-title">// uso aplicado al Ecuador</div>
+        <div class="card-osint">Telegram es el canal preferido de redes de desinformación coordinada en Ecuador. Telepathy permite documentar y archivar canales que difunden contenido falso antes de que sean cerrados.</div>
+        <div>
+          <span class="card-tag priority">Telegram</span>
+          <span class="card-tag">CLI</span>
+        </div>
+        <div class="card-links">
+          <a class="card-link" href="https://github.com/jordanwildon/Telepathy" target="_blank" rel="noopener"><span class="card-link-label">GitHub</span><span class="card-link-url">github.com/jordanwildon/Telepathy</span><span class="card-link-arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- empty state -->
+    <div class="empty-state" id="empty-state">
+      <div class="glyph">∅</div>
+      <p>No se encontraron coincidencias para la búsqueda actual</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <h3>// Cierre operativo</h3>
+        <p style="margin-bottom:14px">Este framework es un mapa vivo. Las URLs cambian, los portales se rediseñan, las administraciones modifican lo que publican. Mantener una <strong style="color:var(--text-primary)">cadena de custodia documental</strong> propia (capturas, PDFs descargados, registros en Wayback Machine) es tan importante como conocer las fuentes.</p>
+        <p>La desinformación no se vence con más ruido, sino con evidencia documental enlazada al original. Cada vez que se cite una afirmación política en el espacio público, debería ser posible llegar al documento oficial primario en menos de dos clics.</p>
+      </div>
+      <div>
+        <h3>// Marco legal</h3>
+        <ul>
+          <li>Constitución 2008 · Art. 18, 91, 92</li>
+          <li>LOTAIP · R.O. 337-S, 2004</li>
+          <li>LOPDP · R.O. 459-S, 2021</li>
+          <li>COOTAD · R.O. 303-S, 2010</li>
+          <li>Sentencia CCE 21-23-IN/24</li>
+        </ul>
+      </div>
+      <div>
+        <h3>// Estándares OSINT</h3>
+        <ul>
+          <li>OSINT Framework</li>
+          <li>Bellingcat Toolkit</li>
+          <li>IFCN Code of Principles</li>
+          <li>OGP Open Data Charter</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>FRAMEWORK-OSINT-POL Ecuador // v1.2 // <span class="signature">CIBERSEGURIDAD &amp; CONTRAINTELIGENCIA POLÍTICA</span></span>
+      <span>COMPILADO <span id="footer-date"></span></span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // Set dates
+  const now = new Date();
+  const dateStr = now.getFullYear() + '.' + String(now.getMonth()+1).padStart(2,'0') + '.' + String(now.getDate()).padStart(2,'0');
+  const timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('now-date').textContent = dateStr + ' ' + timeStr + ' UTC-5';
+  document.getElementById('footer-date').textContent = dateStr;
+
+  // Count totals
+  const cards = document.querySelectorAll('.card');
+  const total = cards.length;
+  document.getElementById('total-count').innerHTML = String(total).padStart(2,'0') + ' <small>// fuentes oficiales</small>';
+  document.getElementById('count-display').textContent = String(total).padStart(3,'0');
+
+  // Search & filter
+  const searchInput = document.getElementById('search-input');
+  const chips = document.querySelectorAll('.chip');
+  const sections = document.querySelectorAll('.section');
+  const emptyState = document.getElementById('empty-state');
+  let activeFilter = 'all';
+
+  function applyFilter() {
+    const term = searchInput.value.trim().toLowerCase();
+    let visibleCount = 0;
+    let anyVisibleInSection = {};
+
+    cards.forEach(card => {
+      const cat = card.dataset.cat;
+      const keywords = (card.dataset.keywords || '').toLowerCase();
+      const text = card.textContent.toLowerCase();
+      const matchesFilter = (activeFilter === 'all' || cat === activeFilter);
+      const matchesSearch = (term === '' || keywords.includes(term) || text.includes(term));
+
+      if (matchesFilter && matchesSearch) {
+        card.classList.remove('hidden');
+        visibleCount++;
+        anyVisibleInSection[cat] = true;
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+
+    // Hide sections with no visible cards
+    sections.forEach(s => {
+      const sec = s.dataset.section;
+      if (!sec) return;
+      if (anyVisibleInSection[sec]) {
+        s.style.display = '';
+      } else {
+        s.style.display = 'none';
+      }
+    });
+
+    // Empty state
+    if (visibleCount === 0) {
+      emptyState.classList.add('active');
+      // Show the empty state's parent section regardless
+      const parentSec = emptyState.closest('.section');
+      if (parentSec) parentSec.style.display = '';
+    } else {
+      emptyState.classList.remove('active');
+    }
+
+    document.getElementById('count-display').textContent = String(visibleCount).padStart(3,'0');
+  }
+
+  searchInput.addEventListener('input', applyFilter);
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeFilter = chip.dataset.filter;
+      applyFilter();
+      // Smooth scroll to filter area if user is below
+      if (window.scrollY > 600) {
+        document.getElementById('filter-bar').scrollIntoView({behavior:'smooth', block:'start'});
+      }
+    });
+  });
+
+  // Keyboard shortcut: '/' to focus search
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      searchInput.focus();
+    }
+    if (e.key === 'Escape' && document.activeElement === searchInput) {
+      searchInput.value = '';
+      applyFilter();
+      searchInput.blur();
+    }
+  });
+</script>
+
+</body>
+</html>
